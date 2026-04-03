@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 
 /**
  * ==========================================
- * 1. CONFIG & DATA (정적 데이터 구역)
+ * 1. CONFIG & DATA (설정 및 데이터)
  * ==========================================
  */
 const DEFAULT_CONFIG = {
@@ -27,7 +27,8 @@ const ELECTRICAL_RESOURCES = [
 ];
 
 /**
- * [신규] 추적 정비 진단 로직 데이터
+ * [추적 정비 진단 로직 데이터]
+ * 차종별로 확장 가능하도록 구성 (현재는 368E 전용 데이터)
  */
 const DIAGNOSTIC_LOGIC = {
   start: {
@@ -214,7 +215,7 @@ const styles = {
 
 /**
  * ==========================================
- * 3. SUB COMPONENTS (화면별 분할 컴포넌트)
+ * 3. COMPONENTS (화면별 분할 컴포넌트)
  * ==========================================
  */
 
@@ -360,6 +361,10 @@ const LoginScreen = ({ setView, setUserRole, keepLoggedIn, setKeepLoggedIn }) =>
   );
 };
 
+/**
+ * [메인 화면]
+ * 수정 완료: 메인 화면에서 '고장 추적 진단' 버튼을 제거했습니다.
+ */
 const MainScreen = ({ setView, lockApp }) => (
   <div style={{ ...styles.root, justifyContent: "flex-start", padding: "20px" }} translate="no">
     <header style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px", marginTop: "10px" }}>
@@ -376,11 +381,6 @@ const MainScreen = ({ setView, lockApp }) => (
         <p style={{ color: "#f59e0b", fontSize: "11px", fontWeight: "bold", letterSpacing: "8px", marginBottom: "40px" }}>PREMIUM SERVICE</p>
       </div>
 
-      {/* [추적 진단] 신규 버튼 */}
-      <button onClick={() => setView("diagnostic")} style={{ ...styles.menuCard, borderLeft: "12px solid #ef4444", backgroundColor: "#1a0505", border: "1.5px solid #331111" }}>
-        <span style={{color: "#ff8888"}}>⚡ 고장 추적 진단 (AI Logic)</span><span style={{ fontSize: "12px", color: "#ef4444" }}>START</span>
-      </button>
-
       <button onClick={() => setView("models")} style={{ ...styles.menuCard, borderLeft: "12px solid #f59e0b" }}>
         <span style={{color: "#FFF"}}>🛠️ 차종별 정비 지원</span><span style={{ fontSize: "12px", color: "#f59e0b" }}>VIEW</span>
       </button>
@@ -394,65 +394,80 @@ const MainScreen = ({ setView, lockApp }) => (
 );
 
 /**
- * [신규] 추적 진단 화면 컴포넌트
+ * [추적 진단 화면]
  */
-const DiagnosticScreen = ({ setView }) => {
-  const [currentNode, setCurrentNode] = useState("start");
+const DiagnosticScreen = ({ setView, selectedModel }) => {
+  const [currentNodeKey, setCurrentNodeKey] = useState("start");
   const [history, setHistory] = useState([]);
-  const node = DIAGNOSTIC_LOGIC[currentNode];
+  const [diagnosticResult, setDiagnosticResult] = useState(null);
 
-  const handleOption = (next) => {
-    if (next) {
-      setHistory([...history, currentNode]);
-      setCurrentNode(next);
+  const node = DIAGNOSTIC_LOGIC[currentNodeKey];
+
+  const handleOption = (opt) => {
+    if (opt.result) {
+      setDiagnosticResult(opt.result);
+    } else if (opt.next) {
+      setHistory([...history, currentNodeKey]);
+      setCurrentNodeKey(opt.next);
     }
   };
 
   const handleBack = () => {
-    if (history.length > 0) {
+    if (diagnosticResult) {
+      setDiagnosticResult(null);
+    } else if (history.length > 0) {
       const prev = history[history.length - 1];
       setHistory(history.slice(0, -1));
-      setCurrentNode(prev);
+      setCurrentNodeKey(prev);
     } else {
-      setView("main");
+      setView("categories"); // 돌아가기 버튼을 누르면 카테고리 화면으로 이동
     }
+  };
+
+  const handleRestart = () => {
+    setCurrentNodeKey("start");
+    setHistory([]);
+    setDiagnosticResult(null);
   };
 
   return (
     <div style={{ ...styles.root, justifyContent: "flex-start", padding: "10px" }} translate="no">
       <button onClick={handleBack} style={styles.backBtn}>← BACK</button>
       <div style={{ ...styles.fullCenter, marginTop: "60px" }}>
-        <h2 style={{ fontSize: "18px", color: "#ef4444", fontWeight: "900", marginBottom: "10px", letterSpacing: "2px" }}>고장 추적 진단</h2>
+        <h2 style={{ fontSize: "16px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px", letterSpacing: "1px" }}>{selectedModel} 진단 모드</h2>
+        <h2 style={{ fontSize: "20px", color: "#ef4444", fontWeight: "900", marginBottom: "15px", letterSpacing: "2px" }}>고장 추적 진단</h2>
         
         <div style={{ width: "100%", maxWidth: "450px", backgroundColor: "#0a0a0a", borderRadius: "24px", border: "2px solid #222", padding: "30px", boxSizing: "border-box" }}>
-          <p style={{ fontSize: "22px", fontWeight: "900", lineHeight: "1.5", color: "#fff", marginBottom: "40px" }}>
-            {node.question}
-          </p>
-          
-          <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-            {node.options.map((opt, i) => (
-              <button 
-                key={i} 
-                onClick={() => opt.result ? setCurrentNode({ result: opt.result }) : handleOption(opt.next)}
-                style={{ 
-                  padding: "18px 25px", borderRadius: "15px", border: "1px solid #333", backgroundColor: "#111",
-                  color: "#fff", fontSize: "16px", fontWeight: "bold", cursor: "pointer", textAlign: "left",
-                  display: "flex", justifyContent: "space-between", alignItems: "center"
-                }}
-              >
-                <span>{opt.text}</span>
-                <span style={{ color: "#ef4444" }}>➔</span>
-              </button>
-            ))}
-          </div>
-
-          {currentNode.result && (
-            <div style={{ marginTop: "20px", padding: "25px", backgroundColor: "#1a1200", borderRadius: "15px", border: "2px solid #f59e0b", textAlign: "left" }}>
+          {!diagnosticResult ? (
+            <>
+              <p style={{ fontSize: "22px", fontWeight: "900", lineHeight: "1.5", color: "#fff", marginBottom: "40px" }}>
+                {node?.question || "데이터를 찾을 수 없습니다."}
+              </p>
+              
+              <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+                {node?.options?.map((opt, i) => (
+                  <button 
+                    key={i} 
+                    onClick={() => handleOption(opt)}
+                    style={{ 
+                      padding: "18px 25px", borderRadius: "15px", border: "1px solid #333", backgroundColor: "#111",
+                      color: "#fff", fontSize: "16px", fontWeight: "bold", cursor: "pointer", textAlign: "left",
+                      display: "flex", justifyContent: "space-between", alignItems: "center"
+                    }}
+                  >
+                    <span>{opt.text}</span>
+                    <span style={{ color: "#ef4444" }}>➔</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div style={{ padding: "25px", backgroundColor: "#1a1200", borderRadius: "15px", border: "2px solid #f59e0b", textAlign: "left" }}>
               <p style={{ color: "#f59e0b", fontWeight: "900", fontSize: "14px", marginBottom: "10px" }}>🚨 진단 결과 및 조치</p>
               <p style={{ color: "#fff", fontSize: "16px", fontWeight: "bold", lineHeight: "1.6", whiteSpace: "pre-wrap" }}>
-                {currentNode.result}
+                {diagnosticResult}
               </p>
-              <button onClick={() => { setCurrentNode("start"); setHistory([]); }} style={{ marginTop: "25px", width: "100%", padding: "15px", borderRadius: "10px", border: "none", backgroundColor: "#f59e0b", color: "#000", fontWeight: "900", cursor: "pointer" }}>
+              <button onClick={handleRestart} style={{ marginTop: "25px", width: "100%", padding: "15px", borderRadius: "10px", border: "none", backgroundColor: "#f59e0b", color: "#000", fontWeight: "900", cursor: "pointer" }}>
                 다시 진단하기
               </button>
             </div>
@@ -460,14 +475,13 @@ const DiagnosticScreen = ({ setView }) => {
         </div>
         
         <p style={{ marginTop: "40px", color: "#444", fontSize: "12px" }}>
-          ※ 이 진단 로직은 368E 전장 시퀀스를 기반으로 설계되었습니다.
+          ※ 이 진단 로직은 {selectedModel} 시스템을 기반으로 설계되었습니다.
         </p>
       </div>
     </div>
   );
 };
 
-// 나머지 화면들은 기존과 동일 (생략 및 유지)
 const ModelsScreen = ({ setView, setSelectedModel }) => (
   <div style={{...styles.root, justifyContent: "flex-start", padding: "10px"}} translate="no">
     <button onClick={() => setView("main")} style={styles.backBtn}>← BACK</button>
@@ -487,18 +501,37 @@ const ModelsScreen = ({ setView, setSelectedModel }) => (
   </div>
 );
 
+/**
+ * [카테고리 선택 화면]
+ * 수정 완료: 368E 전용 [고장 추적 진단] 버튼을 이 화면 하단에 추가했습니다.
+ */
 const CategoriesScreen = ({ setView, selectedModel, setSelectedCategory }) => (
   <div style={{...styles.root, justifyContent: "flex-start", padding: "10px"}} translate="no">
     <button onClick={() => setView("models")} style={styles.backBtn}>← BACK</button>
     <div style={{ ...styles.fullCenter, justifyContent: 'center' }}>
       <h2 style={{ fontSize: "22px", color: "#f59e0b", fontWeight: "900", marginBottom: "10px" }}>{selectedModel}</h2>
-      <h1 style={{ fontSize: "28px", fontWeight: "900", marginBottom: "50px", fontStyle: "italic", color: "#FFFFFF" }}>SELECT CATEGORY</h1>
+      <h1 style={{ fontSize: "28px", fontWeight: "900", marginBottom: "40px", fontStyle: "italic", color: "#FFFFFF" }}>SELECT CATEGORY</h1>
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         {CATEGORIES.map(cat => (
           <button key={cat.id} onClick={() => { if(cat.isReady) { setSelectedCategory(cat.name); setView("electrical_menu"); } }} style={{ ...styles.menuCard, borderLeft: `12px solid ${cat.isReady ? "#f59e0b" : "#444"}`, opacity: cat.isReady ? 1 : 0.4, cursor: cat.isReady ? "pointer" : "default", padding: "25px 30px" }}>
             <span style={{color: '#FFFFFF'}}>{cat.name}</span><span style={{ fontSize: '12px', color: cat.isReady ? '#f59e0b' : '#888', fontWeight: "900" }}>{cat.isReady ? "GO" : "UPDATING..."}</span>
           </button>
         ))}
+
+        {/* 368E 카테고리 하단에 배치된 고장 추적 진단 버튼 */}
+        <button 
+            onClick={() => setView("diagnostic")} 
+            style={{ 
+                ...styles.menuCard, 
+                marginTop: "20px",
+                borderLeft: "12px solid #ef4444", 
+                backgroundColor: "#1a0505", 
+                border: "1.5px solid #331111" 
+            }}
+        >
+            <span style={{color: "#ff8888"}}>⚡ 고장 추적 진단 (AI Logic)</span>
+            <span style={{ fontSize: "12px", color: "#ef4444" }}>START</span>
+        </button>
       </div>
     </div>
   </div>
@@ -685,7 +718,7 @@ export default function App() {
     case "intro": return <IntroScreen setView={setView} />;
     case "login": return <LoginScreen setView={setView} setUserRole={setUserRole} keepLoggedIn={keepLoggedIn} setKeepLoggedIn={setKeepLoggedIn} />;
     case "main": return <MainScreen setView={setView} lockApp={lockApp} />;
-    case "diagnostic": return <DiagnosticScreen setView={setView} />;
+    case "diagnostic": return <DiagnosticScreen setView={setView} selectedModel={selectedModel} />;
     case "models": return <ModelsScreen setView={setView} setSelectedModel={setSelectedModel} />;
     case "categories": return <CategoriesScreen setView={setView} selectedModel={selectedModel} setSelectedCategory={setSelectedCategory} />;
     case "electrical_menu": return <ElectricalMenuScreen setView={setView} selectedModel={selectedModel} />;
