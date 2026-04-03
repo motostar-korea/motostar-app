@@ -14,8 +14,8 @@ const DEFAULT_CONFIG = {
 const SUPPORTED_MODELS = ["125M", "125D", "125E", "125C", "310M", "350D", "368E", "368G"];
 
 const CATEGORIES = [
-  { id: "engine", name: "엔진 (ENGINE)", isReady: false },
-  { id: "frame", name: "프레임 (FRAME)", isReady: false },
+  { id: "engine", name: "엔진 (ENGINE)", isReady: true },   // 엔진 활성화 완료!
+  { id: "frame", name: "프레임 (FRAME)", isReady: true },     // 프레임 활성화 완료!
   { id: "electrical", name: "전장 (ELECTRICAL)", isReady: true }
 ];
 
@@ -26,9 +26,34 @@ const ELECTRICAL_RESOURCES = [
   { id: "res4", title: "존테스 368E: 디지털 악수", type: "VIDEO", fileId: "1A61J-oJ9Mm5k9ut3FUfJVMIugkZry0JM" }
 ];
 
+// ⭐ [신규 적용] 프레임(차대) 자료 데이터 (링크 연동 완료)
+const FRAME_RESOURCES = [
+  { 
+    id: "f_res1", 
+    title: "ZT 125/250/350/368E 차대 서비스 매뉴얼", 
+    type: "PDF", 
+    fileId: "1ufwR_c2YIoj4Th-6wX_GXeFKJ2qdZ11o" 
+  },
+  { 
+    id: "f_res2", 
+    title: "오너스 매뉴얼 368T-E", 
+    type: "PDF", 
+    fileId: "1rFlCz0tBz5j9RWmBzUUYe2bOlXVhdRah" 
+  }
+];
+
+// ⭐ [신규 적용] 엔진 자료 데이터 (링크 연동 완료)
+const ENGINE_RESOURCES = [
+  { 
+    id: "e_res1", 
+    title: "368E 엔진 서비스 매뉴얼", 
+    type: "PDF", 
+    fileId: "1Yo-MdOcFp9OP28zcaSkn8GoUgoYMezqY" 
+  }
+];
+
 /**
  * [추적 정비 진단 로직 데이터]
- * 차종별로 확장 가능하도록 구성 (현재는 368E 전용 데이터)
  */
 const DIAGNOSTIC_LOGIC = {
   start: {
@@ -361,10 +386,6 @@ const LoginScreen = ({ setView, setUserRole, keepLoggedIn, setKeepLoggedIn }) =>
   );
 };
 
-/**
- * [메인 화면]
- * 수정 완료: 메인 화면에서 '고장 추적 진단' 버튼을 제거했습니다.
- */
 const MainScreen = ({ setView, lockApp }) => (
   <div style={{ ...styles.root, justifyContent: "flex-start", padding: "20px" }} translate="no">
     <header style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px", marginTop: "10px" }}>
@@ -393,9 +414,6 @@ const MainScreen = ({ setView, lockApp }) => (
   </div>
 );
 
-/**
- * [추적 진단 화면]
- */
 const DiagnosticScreen = ({ setView, selectedModel }) => {
   const [currentNodeKey, setCurrentNodeKey] = useState("start");
   const [history, setHistory] = useState([]);
@@ -420,7 +438,7 @@ const DiagnosticScreen = ({ setView, selectedModel }) => {
       setHistory(history.slice(0, -1));
       setCurrentNodeKey(prev);
     } else {
-      setView("categories"); // 돌아가기 버튼을 누르면 카테고리 화면으로 이동
+      setView("categories");
     }
   };
 
@@ -501,10 +519,6 @@ const ModelsScreen = ({ setView, setSelectedModel }) => (
   </div>
 );
 
-/**
- * [카테고리 선택 화면]
- * 수정 완료: 368E 전용 [고장 추적 진단] 버튼을 이 화면 하단에 추가했습니다.
- */
 const CategoriesScreen = ({ setView, selectedModel, setSelectedCategory }) => (
   <div style={{...styles.root, justifyContent: "flex-start", padding: "10px"}} translate="no">
     <button onClick={() => setView("models")} style={styles.backBtn}>← BACK</button>
@@ -513,12 +527,23 @@ const CategoriesScreen = ({ setView, selectedModel, setSelectedCategory }) => (
       <h1 style={{ fontSize: "28px", fontWeight: "900", marginBottom: "40px", fontStyle: "italic", color: "#FFFFFF" }}>SELECT CATEGORY</h1>
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         {CATEGORIES.map(cat => (
-          <button key={cat.id} onClick={() => { if(cat.isReady) { setSelectedCategory(cat.name); setView("electrical_menu"); } }} style={{ ...styles.menuCard, borderLeft: `12px solid ${cat.isReady ? "#f59e0b" : "#444"}`, opacity: cat.isReady ? 1 : 0.4, cursor: cat.isReady ? "pointer" : "default", padding: "25px 30px" }}>
+          <button 
+            key={cat.id} 
+            onClick={() => { 
+              if(cat.isReady) { 
+                setSelectedCategory(cat.name);
+                // 카테고리에 따라 다른 메뉴로 이동
+                if (cat.id === "electrical") setView("electrical_menu");
+                else if (cat.id === "frame") setView("frame_library"); 
+                else if (cat.id === "engine") setView("engine_library"); // 엔진 메뉴 연결
+              } 
+            }} 
+            style={{ ...styles.menuCard, borderLeft: `12px solid ${cat.isReady ? "#f59e0b" : "#444"}`, opacity: cat.isReady ? 1 : 0.4, cursor: cat.isReady ? "pointer" : "default", padding: "25px 30px" }}
+          >
             <span style={{color: '#FFFFFF'}}>{cat.name}</span><span style={{ fontSize: '12px', color: cat.isReady ? '#f59e0b' : '#888', fontWeight: "900" }}>{cat.isReady ? "GO" : "UPDATING..."}</span>
           </button>
         ))}
 
-        {/* 368E 카테고리 하단에 배치된 고장 추적 진단 버튼 */}
         <button 
             onClick={() => setView("diagnostic")} 
             style={{ 
@@ -536,6 +561,88 @@ const CategoriesScreen = ({ setView, selectedModel, setSelectedCategory }) => (
     </div>
   </div>
 );
+
+// ⭐ [신규 추가] 엔진 자료실 화면 컴포넌트
+const EngineLibraryScreen = ({ setView, selectedModel }) => {
+  const [selectedFileId, setSelectedFileId] = useState(null);
+  
+  return (
+    <div style={{ ...styles.root, justifyContent: "flex-start", padding: "10px" }} translate="no">
+      <button onClick={() => setView("categories")} style={styles.backBtn}>← BACK</button>
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '60px', overflowY: 'auto', flex: 1, paddingBottom: '80px' }}>
+        <h2 style={{ fontSize: "18px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px" }}>{selectedModel} - 엔진</h2>
+        <h1 style={{ fontSize: "24px", fontWeight: "900", marginBottom: "30px", fontStyle: "italic", color: "#FFFFFF" }}>ENGINE MANUAL LIBRARY</h1>
+        
+        <div style={{ display: "flex", flexDirection: "column", gap: "25px", width: "100%", alignItems: "center" }}>
+          {ENGINE_RESOURCES.map(res => (
+            <div key={res.id} onClick={() => setSelectedFileId(res.fileId)} style={{ width: "100%", maxWidth: "450px", backgroundColor: "#0a0a0a", borderRadius: "24px", border: "1.5px solid #222", overflow: "hidden", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
+              <div style={{ height: "180px", width: "100%", backgroundColor: "#111", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", borderBottom: "1px solid #333" }}>
+                <img src={`https://drive.google.com/thumbnail?id=${res.fileId}&sz=w800`} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} onError={(e) => { e.target.src = "/모터스타 이미지.png"; }} />
+              </div>
+              <div style={{ padding: "20px" }}>
+                <span style={{ fontSize: "10px", color: "#ef4444", fontWeight: "900", border: "1.5px solid #ef4444", padding: "3px 8px", borderRadius: "6px", marginBottom: "12px", display: "inline-block" }}>{res.type}</span>
+                <h3 style={{ fontSize: "16px", fontWeight: "900", color: "#FFFFFF", lineHeight: "1.4" }}>{res.title}</h3>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {selectedFileId && (
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "#000", zIndex: 11000, display: "flex", flexDirection: "column", padding: "10px" }}>
+          <header style={{ width: '100%', display: 'flex', justifyContent: 'space-between', padding: '15px 0' }}>
+            <span style={{ color: '#fff', fontSize: '14px', fontWeight: 'bold' }}>MANUAL VIEWER</span>
+            <button onClick={() => setSelectedFileId(null)} style={{ color: '#FFFFFF', background: '#e11d48', border: 'none', fontSize: '14px', fontWeight: "900", cursor: 'pointer', padding: '8px 20px', borderRadius: '12px' }}>✕ CLOSE</button>
+          </header>
+          <div style={{ width: '100%', flex: 1, backgroundColor: '#fff', borderRadius: '20px', overflow: 'hidden' }}>
+            <iframe src={`https://drive.google.com/file/d/${selectedFileId}/preview`} style={{ width: '100%', height: '100%', border: 'none' }} title="Full Preview" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ⭐ [기존 추가 유지] 프레임 자료실 화면 컴포넌트
+const FrameLibraryScreen = ({ setView, selectedModel }) => {
+  const [selectedFileId, setSelectedFileId] = useState(null);
+  
+  return (
+    <div style={{ ...styles.root, justifyContent: "flex-start", padding: "10px" }} translate="no">
+      <button onClick={() => setView("categories")} style={styles.backBtn}>← BACK</button>
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '60px', overflowY: 'auto', flex: 1, paddingBottom: '80px' }}>
+        <h2 style={{ fontSize: "18px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px" }}>{selectedModel} - 프레임</h2>
+        <h1 style={{ fontSize: "24px", fontWeight: "900", marginBottom: "30px", fontStyle: "italic", color: "#FFFFFF" }}>FRAME MANUAL LIBRARY</h1>
+        
+        <div style={{ display: "flex", flexDirection: "column", gap: "25px", width: "100%", alignItems: "center" }}>
+          {FRAME_RESOURCES.map(res => (
+            <div key={res.id} onClick={() => setSelectedFileId(res.fileId)} style={{ width: "100%", maxWidth: "450px", backgroundColor: "#0a0a0a", borderRadius: "24px", border: "1.5px solid #222", overflow: "hidden", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
+              <div style={{ height: "180px", width: "100%", backgroundColor: "#111", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", borderBottom: "1px solid #333" }}>
+                <img src={`https://drive.google.com/thumbnail?id=${res.fileId}&sz=w800`} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} onError={(e) => { e.target.src = "/모터스타 이미지.png"; }} />
+              </div>
+              <div style={{ padding: "20px" }}>
+                <span style={{ fontSize: "10px", color: "#3b82f6", fontWeight: "900", border: "1.5px solid #3b82f6", padding: "3px 8px", borderRadius: "6px", marginBottom: "12px", display: "inline-block" }}>{res.type}</span>
+                <h3 style={{ fontSize: "16px", fontWeight: "900", color: "#FFFFFF", lineHeight: "1.4" }}>{res.title}</h3>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {selectedFileId && (
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "#000", zIndex: 11000, display: "flex", flexDirection: "column", padding: "10px" }}>
+          <header style={{ width: '100%', display: 'flex', justifyContent: 'space-between', padding: '15px 0' }}>
+            <span style={{ color: '#fff', fontSize: '14px', fontWeight: 'bold' }}>MANUAL VIEWER</span>
+            <button onClick={() => setSelectedFileId(null)} style={{ color: '#FFFFFF', background: '#e11d48', border: 'none', fontSize: '14px', fontWeight: "900", cursor: 'pointer', padding: '8px 20px', borderRadius: '12px' }}>✕ CLOSE</button>
+          </header>
+          <div style={{ width: '100%', flex: 1, backgroundColor: '#fff', borderRadius: '20px', overflow: 'hidden' }}>
+            <iframe src={`https://drive.google.com/file/d/${selectedFileId}/preview`} style={{ width: '100%', height: '100%', border: 'none' }} title="Full Preview" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const ElectricalMenuScreen = ({ setView, selectedModel }) => {
   const subMenus = [
@@ -723,6 +830,8 @@ export default function App() {
     case "categories": return <CategoriesScreen setView={setView} selectedModel={selectedModel} setSelectedCategory={setSelectedCategory} />;
     case "electrical_menu": return <ElectricalMenuScreen setView={setView} selectedModel={selectedModel} />;
     case "electrical_library": return <ElectricalLibraryScreen setView={setView} selectedModel={selectedModel} />;
+    case "frame_library": return <FrameLibraryScreen setView={setView} selectedModel={selectedModel} />;
+    case "engine_library": return <EngineLibraryScreen setView={setView} selectedModel={selectedModel} />; // 신규 화면 추가
     case "wiring_diagram": return <WiringDiagramScreen setView={setView} selectedModel={selectedModel} />;
     case "sequence": return <SequenceScreen setView={setView} selectedModel={selectedModel} />;
     case "cloudView": return <CloudViewScreen setView={setView} />;
