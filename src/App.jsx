@@ -14,8 +14,8 @@ const DEFAULT_CONFIG = {
 const SUPPORTED_MODELS = ["125M", "125D", "125E", "125C", "310M", "350D", "368E", "368G"];
 
 const CATEGORIES = [
-  { id: "engine", name: "엔진 (ENGINE)", isReady: true },   // 엔진 활성화 완료!
-  { id: "frame", name: "프레임 (FRAME)", isReady: true },     // 프레임 활성화 완료!
+  { id: "engine", name: "엔진 (ENGINE)", isReady: true },
+  { id: "frame", name: "프레임 (FRAME)", isReady: true },
   { id: "electrical", name: "전장 (ELECTRICAL)", isReady: true }
 ];
 
@@ -26,7 +26,6 @@ const ELECTRICAL_RESOURCES = [
   { id: "res4", title: "존테스 368E: 디지털 악수", type: "VIDEO", fileId: "1A61J-oJ9Mm5k9ut3FUfJVMIugkZry0JM" }
 ];
 
-// ⭐ [신규 적용] 프레임(차대) 자료 데이터 (링크 연동 완료)
 const FRAME_RESOURCES = [
   { 
     id: "f_res1", 
@@ -42,13 +41,32 @@ const FRAME_RESOURCES = [
   }
 ];
 
-// ⭐ [신규 적용] 엔진 자료 데이터 (링크 연동 완료)
 const ENGINE_RESOURCES = [
   { 
     id: "e_res1", 
     title: "368E 엔진 서비스 매뉴얼", 
     type: "PDF", 
     fileId: "1Yo-MdOcFp9OP28zcaSkn8GoUgoYMezqY" 
+  }
+];
+
+// ⭐ [신규] 스캔 분석 자료 데이터 (나중에 파일 ID 추가)
+const SCAN_ANALYSIS_RESOURCES = [
+  { 
+    id: "sa_res1", 
+    title: "진단기 스캔 데이터 분석 방법", 
+    type: "PDF", 
+    fileId: "여기에_스캔분석자료_ID_입력" 
+  }
+];
+
+// ⭐ [신규] 고장코드 자료 데이터 (나중에 파일 ID 추가)
+const FAULT_CODE_RESOURCES = [
+  { 
+    id: "fc_res1", 
+    title: "전 차종 고장코드(DTC) 상세표", 
+    type: "PDF", 
+    fileId: "여기에_고장코드자료_ID_입력" 
   }
 ];
 
@@ -532,10 +550,9 @@ const CategoriesScreen = ({ setView, selectedModel, setSelectedCategory }) => (
             onClick={() => { 
               if(cat.isReady) { 
                 setSelectedCategory(cat.name);
-                // 카테고리에 따라 다른 메뉴로 이동
                 if (cat.id === "electrical") setView("electrical_menu");
                 else if (cat.id === "frame") setView("frame_library"); 
-                else if (cat.id === "engine") setView("engine_library"); // 엔진 메뉴 연결
+                else if (cat.id === "engine") setView("engine_library");
               } 
             }} 
             style={{ ...styles.menuCard, borderLeft: `12px solid ${cat.isReady ? "#f59e0b" : "#444"}`, opacity: cat.isReady ? 1 : 0.4, cursor: cat.isReady ? "pointer" : "default", padding: "25px 30px" }}
@@ -562,7 +579,6 @@ const CategoriesScreen = ({ setView, selectedModel, setSelectedCategory }) => (
   </div>
 );
 
-// ⭐ [신규 추가] 엔진 자료실 화면 컴포넌트
 const EngineLibraryScreen = ({ setView, selectedModel }) => {
   const [selectedFileId, setSelectedFileId] = useState(null);
   
@@ -603,7 +619,6 @@ const EngineLibraryScreen = ({ setView, selectedModel }) => {
   );
 };
 
-// ⭐ [기존 추가 유지] 프레임 자료실 화면 컴포넌트
 const FrameLibraryScreen = ({ setView, selectedModel }) => {
   const [selectedFileId, setSelectedFileId] = useState(null);
   
@@ -644,12 +659,16 @@ const FrameLibraryScreen = ({ setView, selectedModel }) => {
   );
 };
 
+/**
+ * [전장 메뉴 화면]
+ * 수정: 스캔 메뉴 활성화 및 이름 변경
+ */
 const ElectricalMenuScreen = ({ setView, selectedModel }) => {
   const subMenus = [
     { id: "smart", name: "스마트 (SMART SYSTEM)", isReady: true },
     { id: "sequence", name: "시동 시퀀스 (START SEQUENCE)", isReady: true },
     { id: "wiring", name: "전체 회로도 (WIRING DIAGRAM)", isReady: true },
-    { id: "scan", name: "스캔 분석 (SCAN ANALYSIS)", isReady: false },
+    { id: "scan", name: "스캔 분석 및 고장코드", isReady: true }, // 활성화됨!
     { id: "ecu", name: "ECU (CONTROL UNIT)", isReady: false }
   ];
   return (
@@ -663,14 +682,138 @@ const ElectricalMenuScreen = ({ setView, selectedModel }) => {
             let pointColor = "#f59e0b"; 
             if (menu.id === "sequence") pointColor = "#ef4444"; 
             if (menu.id === "wiring") pointColor = "#10b981"; 
+            if (menu.id === "scan") pointColor = "#8b5cf6"; // 보라색 포인트 추가
+
             return (
-              <button key={menu.id} onClick={() => { if(menu.isReady) { if(menu.id === "smart") setView("electrical_library"); else if(menu.id === "sequence") setView("sequence"); else if(menu.id === "wiring") setView("wiring_diagram"); } }} style={{ ...styles.menuCard, borderLeft: `12px solid ${menu.isReady ? pointColor : "#444"}`, opacity: menu.isReady ? 1 : 0.4, cursor: menu.isReady ? "pointer" : "default", padding: "22px 30px" }}>
+              <button key={menu.id} onClick={() => { 
+                if(menu.isReady) { 
+                  if(menu.id === "smart") setView("electrical_library"); 
+                  else if(menu.id === "sequence") setView("sequence"); 
+                  else if(menu.id === "wiring") setView("wiring_diagram"); 
+                  else if(menu.id === "scan") setView("scan_menu"); // 신규 메뉴로 이동
+                } 
+              }} style={{ ...styles.menuCard, borderLeft: `12px solid ${menu.isReady ? pointColor : "#444"}`, opacity: menu.isReady ? 1 : 0.4, cursor: menu.isReady ? "pointer" : "default", padding: "22px 30px" }}>
                 <span style={{color: '#FFFFFF'}}>{menu.name}</span><span style={{ fontSize: '11px', color: menu.isReady ? pointColor : "#888", fontWeight: "900" }}>{menu.isReady ? "GO" : "UPDATING"}</span>
               </button>
             );
           })}
         </div>
       </div>
+    </div>
+  );
+};
+
+// ⭐ [신규 추가] 스캔 분석 & 고장코드 중간 선택 화면
+const ScanMenuScreen = ({ setView, selectedModel }) => {
+  return (
+    <div style={{...styles.root, justifyContent: "flex-start", padding: "10px"}} translate="no">
+      <button onClick={() => setView("electrical_menu")} style={styles.backBtn}>← BACK</button>
+      <div style={{ ...styles.fullCenter, justifyContent: 'center' }}>
+        <h2 style={{ fontSize: "20px", color: "#f59e0b", fontWeight: "900", marginBottom: "10px" }}>{selectedModel} - 전장</h2>
+        <h1 style={{ fontSize: "26px", fontWeight: "900", marginBottom: "40px", fontStyle: "italic", color: "#FFFFFF" }}>SCAN & FAULT CODE</h1>
+        
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {/* 스캔 분석 버튼 */}
+          <button 
+            onClick={() => setView("scan_analysis_library")} 
+            style={{ ...styles.menuCard, borderLeft: `12px solid #8b5cf6`, padding: "25px 30px" }}
+          >
+            <span style={{color: '#FFFFFF'}}>스캔 분석 (SCAN ANALYSIS)</span>
+            <span style={{ fontSize: '12px', color: "#8b5cf6", fontWeight: "900" }}>GO</span>
+          </button>
+
+          {/* 고장코드 버튼 */}
+          <button 
+            onClick={() => setView("fault_code_library")} 
+            style={{ ...styles.menuCard, borderLeft: `12px solid #ec4899`, padding: "25px 30px" }}
+          >
+            <span style={{color: '#FFFFFF'}}>고장코드 (FAULT CODES)</span>
+            <span style={{ fontSize: '12px', color: "#ec4899", fontWeight: "900" }}>GO</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ⭐ [신규 추가] 스캔 분석 전용 자료실 화면
+const ScanAnalysisLibraryScreen = ({ setView, selectedModel }) => {
+  const [selectedFileId, setSelectedFileId] = useState(null);
+  
+  return (
+    <div style={{ ...styles.root, justifyContent: "flex-start", padding: "10px" }} translate="no">
+      <button onClick={() => setView("scan_menu")} style={styles.backBtn}>← BACK</button>
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '60px', overflowY: 'auto', flex: 1, paddingBottom: '80px' }}>
+        <h2 style={{ fontSize: "18px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px" }}>{selectedModel} - 스캔 분석</h2>
+        <h1 style={{ fontSize: "24px", fontWeight: "900", marginBottom: "30px", fontStyle: "italic", color: "#FFFFFF" }}>SCAN ANALYSIS DATA</h1>
+        
+        <div style={{ display: "flex", flexDirection: "column", gap: "25px", width: "100%", alignItems: "center" }}>
+          {SCAN_ANALYSIS_RESOURCES.map(res => (
+            <div key={res.id} onClick={() => setSelectedFileId(res.fileId)} style={{ width: "100%", maxWidth: "450px", backgroundColor: "#0a0a0a", borderRadius: "24px", border: "1.5px solid #222", overflow: "hidden", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
+              <div style={{ height: "180px", width: "100%", backgroundColor: "#111", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", borderBottom: "1px solid #333" }}>
+                <img src={`https://drive.google.com/thumbnail?id=${res.fileId}&sz=w800`} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} onError={(e) => { e.target.src = "/모터스타 이미지.png"; }} />
+              </div>
+              <div style={{ padding: "20px" }}>
+                <span style={{ fontSize: "10px", color: "#8b5cf6", fontWeight: "900", border: "1.5px solid #8b5cf6", padding: "3px 8px", borderRadius: "6px", marginBottom: "12px", display: "inline-block" }}>{res.type}</span>
+                <h3 style={{ fontSize: "16px", fontWeight: "900", color: "#FFFFFF", lineHeight: "1.4" }}>{res.title}</h3>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {selectedFileId && (
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "#000", zIndex: 11000, display: "flex", flexDirection: "column", padding: "10px" }}>
+          <header style={{ width: '100%', display: 'flex', justifyContent: 'space-between', padding: '15px 0' }}>
+            <span style={{ color: '#fff', fontSize: '14px', fontWeight: 'bold' }}>SCAN VIEWER</span>
+            <button onClick={() => setSelectedFileId(null)} style={{ color: '#FFFFFF', background: '#e11d48', border: 'none', fontSize: '14px', fontWeight: "900", cursor: 'pointer', padding: '8px 20px', borderRadius: '12px' }}>✕ CLOSE</button>
+          </header>
+          <div style={{ width: '100%', flex: 1, backgroundColor: '#fff', borderRadius: '20px', overflow: 'hidden' }}>
+            <iframe src={`https://drive.google.com/file/d/${selectedFileId}/preview`} style={{ width: '100%', height: '100%', border: 'none' }} title="Full Preview" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ⭐ [신규 추가] 고장코드 전용 자료실 화면
+const FaultCodeLibraryScreen = ({ setView, selectedModel }) => {
+  const [selectedFileId, setSelectedFileId] = useState(null);
+  
+  return (
+    <div style={{ ...styles.root, justifyContent: "flex-start", padding: "10px" }} translate="no">
+      <button onClick={() => setView("scan_menu")} style={styles.backBtn}>← BACK</button>
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '60px', overflowY: 'auto', flex: 1, paddingBottom: '80px' }}>
+        <h2 style={{ fontSize: "18px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px" }}>{selectedModel} - 고장코드</h2>
+        <h1 style={{ fontSize: "24px", fontWeight: "900", marginBottom: "30px", fontStyle: "italic", color: "#FFFFFF" }}>FAULT CODE DATA</h1>
+        
+        <div style={{ display: "flex", flexDirection: "column", gap: "25px", width: "100%", alignItems: "center" }}>
+          {FAULT_CODE_RESOURCES.map(res => (
+            <div key={res.id} onClick={() => setSelectedFileId(res.fileId)} style={{ width: "100%", maxWidth: "450px", backgroundColor: "#0a0a0a", borderRadius: "24px", border: "1.5px solid #222", overflow: "hidden", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
+              <div style={{ height: "180px", width: "100%", backgroundColor: "#111", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", borderBottom: "1px solid #333" }}>
+                <img src={`https://drive.google.com/thumbnail?id=${res.fileId}&sz=w800`} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} onError={(e) => { e.target.src = "/모터스타 이미지.png"; }} />
+              </div>
+              <div style={{ padding: "20px" }}>
+                <span style={{ fontSize: "10px", color: "#ec4899", fontWeight: "900", border: "1.5px solid #ec4899", padding: "3px 8px", borderRadius: "6px", marginBottom: "12px", display: "inline-block" }}>{res.type}</span>
+                <h3 style={{ fontSize: "16px", fontWeight: "900", color: "#FFFFFF", lineHeight: "1.4" }}>{res.title}</h3>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {selectedFileId && (
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "#000", zIndex: 11000, display: "flex", flexDirection: "column", padding: "10px" }}>
+          <header style={{ width: '100%', display: 'flex', justifyContent: 'space-between', padding: '15px 0' }}>
+            <span style={{ color: '#fff', fontSize: '14px', fontWeight: 'bold' }}>CODE VIEWER</span>
+            <button onClick={() => setSelectedFileId(null)} style={{ color: '#FFFFFF', background: '#e11d48', border: 'none', fontSize: '14px', fontWeight: "900", cursor: 'pointer', padding: '8px 20px', borderRadius: '12px' }}>✕ CLOSE</button>
+          </header>
+          <div style={{ width: '100%', flex: 1, backgroundColor: '#fff', borderRadius: '20px', overflow: 'hidden' }}>
+            <iframe src={`https://drive.google.com/file/d/${selectedFileId}/preview`} style={{ width: '100%', height: '100%', border: 'none' }} title="Full Preview" />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -831,7 +974,10 @@ export default function App() {
     case "electrical_menu": return <ElectricalMenuScreen setView={setView} selectedModel={selectedModel} />;
     case "electrical_library": return <ElectricalLibraryScreen setView={setView} selectedModel={selectedModel} />;
     case "frame_library": return <FrameLibraryScreen setView={setView} selectedModel={selectedModel} />;
-    case "engine_library": return <EngineLibraryScreen setView={setView} selectedModel={selectedModel} />; // 신규 화면 추가
+    case "engine_library": return <EngineLibraryScreen setView={setView} selectedModel={selectedModel} />; 
+    case "scan_menu": return <ScanMenuScreen setView={setView} selectedModel={selectedModel} />; // 신규 중간 메뉴
+    case "scan_analysis_library": return <ScanAnalysisLibraryScreen setView={setView} selectedModel={selectedModel} />; // 신규 스캔 자료실
+    case "fault_code_library": return <FaultCodeLibraryScreen setView={setView} selectedModel={selectedModel} />; // 신규 고장코드 자료실
     case "wiring_diagram": return <WiringDiagramScreen setView={setView} selectedModel={selectedModel} />;
     case "sequence": return <SequenceScreen setView={setView} selectedModel={selectedModel} />;
     case "cloudView": return <CloudViewScreen setView={setView} />;
