@@ -37,25 +37,79 @@ const ENGINE_RESOURCES = [
 ];
 
 const SCAN_ANALYSIS_RESOURCES = [
-  { id: "sa_res1", title: "진단기 스캔 데이터 분석 방법", type: "PDF", fileId: "여기에_스캔분석자료_ID_입력" }
+  { id: "sa_res1", title: "진단기 스캔 데이터 분석 방법", type: "PDF", fileId: "1QTzGcYFvrvz1gTqbygD8iqplrksTd909gmtzHfnp4Yk" }
 ];
 
 const FAULT_CODE_RESOURCES = [
-  { id: "fc_res1", title: "전 차종 고장코드(DTC) 상세표", type: "PDF", fileId: "여기에_고장코드자료_ID_입력" }
+  { id: "fc_res1", title: "전 차종 고장코드(DTC) 상세표", type: "PDF", fileId: "1g9j7n5fRvZ-zDpMWggbIdZvZW4sTxDGaqCDE7HXmZtY" }
 ];
 
 /**
  * [추적 정비 진단 로직 데이터]
+ * ⭐ 변경점: start 부분에 DTC 다이렉트 메뉴를 추가하고 dtc_list 연결
  */
 const DIAGNOSTIC_LOGIC = {
   start: {
-    question: "고장 증상이 무엇인가요?",
+    question: "진단 방식을 선택하거나 고장 증상을 선택하세요.",
     options: [
+      { text: "🚨 고장코드(DTC) 다이렉트 진단", next: "dtc_list" },
       { text: "시동 불량 (전원/스타터 문제)", next: "power_check" },
       { text: "충전 불량 (배터리 방전)", next: "coming_soon" },
       { text: "아이들링 불안정 (시동 꺼짐)", next: "coming_soon" }
     ]
   },
+  // 신규 추가: 고장코드 리스트 (선생님이 주신 18개 코드 적용)
+  dtc_list: {
+    question: "스캐너에 발생한 고장코드를 선택하세요.",
+    options: [
+      { text: "P0107 - 흡기 압력(MAP) 센서 전압 낮음", next: "dtc_p0107" },
+      { text: "P0108 - 흡기 압력(MAP) 센서 전압 높음", next: "dtc_p0108" },
+      { text: "P0122 - 스로틀 위치(TPS) 센서 전압 낮음", next: "dtc_p0122" },
+      { text: "P0123 - 스로틀 위치(TPS) 센서 전압 높음", next: "dtc_p0123" },
+      { text: "P0112 - 흡기 온도(IAT) 센서 전압 낮음", next: "dtc_p0112" },
+      { text: "P0113 - 흡기 온도(IAT) 센서 전압 높음", next: "dtc_p0113" },
+      { text: "P0117 - 냉각수 온도(ECT) 센서 전압 낮음", next: "dtc_p0117" },
+      { text: "P0118 - 냉각수 온도(ECT) 센서 전압 높음", next: "dtc_p0118" },
+      { text: "P0201 - 연료 인젝터 피드백 없음", next: "dtc_p0201" },
+      { text: "P0031 - 산소센서 히터 회로 전압 낮음", next: "dtc_p0031" },
+      { text: "P0032 - 산소센서 히터 회로 전압 높음", next: "dtc_p0032" },
+      { text: "P0131 - 산소센서 신호 전압 낮음", next: "dtc_p0131" },
+      { text: "P0132 - 산소센서 신호 전압 높음", next: "dtc_p0132" },
+      { text: "P0336 - 크랭크 위치(CKP) 센서 신호 잡음", next: "dtc_p0336" },
+      { text: "P0351 - 이그니션 코일 피드백 없음", next: "dtc_p0351" },
+      { text: "P0501 - 차속 센서(VSS) 신호 이상", next: "dtc_p0501" },
+      { text: "P0562 - 시스템 전압 낮음", next: "dtc_p0562" },
+      { text: "P0563 - 시스템 전압 높음", next: "dtc_p0563" }
+    ]
+  },
+  // --- 아래부터는 각 DTC별 후속 로직 (선생님의 데이터로 채워질 공간) ---
+  dtc_p0201: {
+    question: "코드 P0201 (연료 인젝터 피드백 없음)\n\n[1단계 점검] 인젝터 커넥터를 분리하고 인젝터 양단 저항을 측정하세요. (정상 기준치: 11~14Ω)\n저항값이 정상입니까?",
+    options: [
+      { text: "예, 정상 범위(11~14Ω) 입니다.", result: "[다음 점검 지시]\n키온(IG ON) 상태에서 인젝터 전원선(빨간선)에 12V가 인가되는지 확인하세요.\n(상세 로직 추가 예정)" },
+      { text: "아니오, 저항이 안 나옵니다 (또는 단락).", result: "인젝터 내부 코일 손상이 의심됩니다.\n[조치] 연료 인젝터 어셈블리를 교환하십시오." }
+    ]
+  },
+  // 공통 미작성 안내 로직
+  dtc_p0107: { question: "[감지조건] MAP 센서 신호 전압이 0.1V 미만입니다.", options: [{ text: "확인", result: "상세 점검 20고개 로직은 데이터 수집 후 업데이트됩니다." }] },
+  dtc_p0108: { question: "[감지조건] MAP 센서 신호 전압이 4.8V 이상입니다.", options: [{ text: "확인", result: "상세 점검 20고개 로직은 데이터 수집 후 업데이트됩니다." }] },
+  dtc_p0122: { question: "[감지조건] TPS 센서 신호 전압이 0.1V 미만입니다.", options: [{ text: "확인", result: "상세 점검 20고개 로직은 데이터 수집 후 업데이트됩니다." }] },
+  dtc_p0123: { question: "[감지조건] TPS 센서 신호 전압이 4.8V 이상입니다.", options: [{ text: "확인", result: "상세 점검 20고개 로직은 데이터 수집 후 업데이트됩니다." }] },
+  dtc_p0112: { question: "[감지조건] IAT 센서 신호 전압이 0.1V 미만입니다.", options: [{ text: "확인", result: "상세 점검 20고개 로직은 데이터 수집 후 업데이트됩니다." }] },
+  dtc_p0113: { question: "[감지조건] IAT 센서 신호 전압이 4.8V 이상입니다.", options: [{ text: "확인", result: "상세 점검 20고개 로직은 데이터 수집 후 업데이트됩니다." }] },
+  dtc_p0117: { question: "[감지조건] ECT 센서 신호 전압이 0.1V 미만입니다.", options: [{ text: "확인", result: "상세 점검 20고개 로직은 데이터 수집 후 업데이트됩니다." }] },
+  dtc_p0118: { question: "[감지조건] ECT 센서 신호 전압이 4.8V 이상입니다.", options: [{ text: "확인", result: "상세 점검 20고개 로직은 데이터 수집 후 업데이트됩니다." }] },
+  dtc_p0031: { question: "[감지조건] 산소센서 히터 회로 전압 낮음", options: [{ text: "확인", result: "상세 점검 20고개 로직은 데이터 수집 후 업데이트됩니다." }] },
+  dtc_p0032: { question: "[감지조건] 산소센서 히터 회로 전압 높음", options: [{ text: "확인", result: "상세 점검 20고개 로직은 데이터 수집 후 업데이트됩니다." }] },
+  dtc_p0131: { question: "[감지조건] 산소센서 신호 전압 낮음", options: [{ text: "확인", result: "상세 점검 20고개 로직은 데이터 수집 후 업데이트됩니다." }] },
+  dtc_p0132: { question: "[감지조건] 산소센서 신호 전압 높음", options: [{ text: "확인", result: "상세 점검 20고개 로직은 데이터 수집 후 업데이트됩니다." }] },
+  dtc_p0336: { question: "[감지조건] 크랭크 위치 센서 신호 잡음/불량", options: [{ text: "확인", result: "상세 점검 20고개 로직은 데이터 수집 후 업데이트됩니다." }] },
+  dtc_p0351: { question: "[감지조건] 이그니션 코일 제어 회로 피드백 없음", options: [{ text: "확인", result: "상세 점검 20고개 로직은 데이터 수집 후 업데이트됩니다." }] },
+  dtc_p0501: { question: "[감지조건] 차속 센서 신호 이상", options: [{ text: "확인", result: "상세 점검 20고개 로직은 데이터 수집 후 업데이트됩니다." }] },
+  dtc_p0562: { question: "[감지조건] 시스템 전압(배터리 전압)이 기준치보다 낮습니다.", options: [{ text: "확인", result: "배터리 충전 상태 및 레귤레이터 충전 전압을 점검하십시오." }] },
+  dtc_p0563: { question: "[감지조건] 시스템 전압(배터리 전압)이 기준치보다 높습니다.", options: [{ text: "확인", result: "레귤레이터 과충전 불량 및 접지 라인을 점검하십시오." }] },
+
+  // --- 기존 시동 불량 로직 유지 ---
   power_check: {
     question: "적색(Wake-up) 버튼을 눌렀을 때 반응이 어떤가요?",
     options: [
@@ -117,8 +171,7 @@ const startSequenceData = {
   ]
 };
 
-// ⭐ [신규 추가] 통합 검색용 데이터 베이스 (앱의 모든 자료를 하나로 묶음)
-// tags 키워드를 통해 검색 시 매칭되도록 합니다.
+// 통합 검색용 데이터 베이스
 const SEARCH_DATABASE = [
   { id: "s1", title: "고장 추적 진단 (AI Logic) 시작", type: "DIAGNOSTIC", action: "diagnostic", tags: ["시동불량", "전원", "먹통", "스타터", "배터리", "시동꺼짐"] },
   { id: "s2", title: "시동 시퀀스 분석 12단계", type: "SEQUENCE", action: "sequence", tags: ["시동", "시퀀스", "PKE", "릴레이", "스마트키", "적색버튼", "12v"] },
@@ -126,13 +179,17 @@ const SEARCH_DATABASE = [
   { id: "s4", title: "스캔 분석 데이터", type: "SCAN", action: "scan_analysis_library", tags: ["스캔", "진단기", "데이터분석"] },
   { id: "s5", title: "고장코드(DTC) 목록", type: "CODE", action: "fault_code_library", tags: ["고장코드", "dtc", "에러", "경고등", "p0"] },
   { id: "s6", title: "프레임 매뉴얼 (차대, 조립, 토크)", type: "MANUAL", action: "frame_library", tags: ["프레임", "차대", "토크", "조립", "카울", "볼트", "메뉴얼"] },
-  { id: "s7", title: "엔진 매뉴얼 (분해, 조립, 토크)", type: "MANUAL", action: "engine_library", tags: ["엔진", "분해", "토크", "조립", "메뉴얼", "타이밍"] }
+  { id: "s7", title: "엔진 매뉴얼 (분해, 조립, 토크)", type: "MANUAL", action: "engine_library", tags: ["엔진", "분해", "토크", "조립", "메뉴얼", "타이밍"] },
+  // 고장코드 검색 데이터 추가
+  { id: "p0107", title: "P0107 - 흡기 압력(MAP) 전압 낮음", type: "DTC", action: "diagnostic", tags: ["p0107", "map", "흡기", "전압"] },
+  { id: "p0122", title: "P0122 - 스로틀 위치(TPS) 전압 낮음", type: "DTC", action: "diagnostic", tags: ["p0122", "tps", "스로틀", "전압"] },
+  { id: "p0201", title: "P0201 - 연료 인젝터 피드백 없음", type: "DTC", action: "diagnostic", tags: ["p0201", "인젝터", "연료"] }
 ];
 
 
 /**
  * ==========================================
- * 2. GLOBAL STYLES (공통 스타일 구역)
+ * 2. GLOBAL STYLES
  * ==========================================
  */
 const styles = {
@@ -144,7 +201,6 @@ const styles = {
   fullCenter: {
     display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
     width: "100%", flex: 1, textAlign: "center", padding: "20px", boxSizing: "border-box",
-    // 하단 검색바 때문에 아래쪽 여백 확보
     paddingBottom: "80px" 
   },
   menuCard: {
@@ -162,17 +218,15 @@ const styles = {
 
 /**
  * ==========================================
- * 3. COMPONENTS (화면별 분할 컴포넌트)
+ * 3. COMPONENTS
  * ==========================================
  */
 
-// ⭐ [신규 추가] 항상 하단에 떠 있는 통합 검색바 컴포넌트
 const BottomSearchBar = ({ onSearchResultClick }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isFocused, setIsFocused] = useState(false);
 
-  // 검색 로직
   useEffect(() => {
     if (searchTerm.trim() === "") {
       setSearchResults([]);
@@ -192,7 +246,6 @@ const BottomSearchBar = ({ onSearchResultClick }) => {
       display: "flex", flexDirection: "column", alignItems: "center",
       transition: "all 0.3s ease"
     }}>
-      {/* 검색 결과 리스트 (위로 팝업됨) */}
       {isFocused && searchResults.length > 0 && (
         <div style={{
           width: "95%", maxWidth: "450px", backgroundColor: "#111", borderRadius: "20px 20px 0 0",
@@ -221,8 +274,6 @@ const BottomSearchBar = ({ onSearchResultClick }) => {
           ))}
         </div>
       )}
-
-      {/* 검색창 본체 */}
       <div style={{
         width: "100%", backgroundColor: "#0a0a0a", padding: "15px 20px", borderTop: "2px solid #222",
         display: "flex", justifyContent: "center", boxSizing: "border-box"
@@ -233,11 +284,11 @@ const BottomSearchBar = ({ onSearchResultClick }) => {
           <span style={{ position: "absolute", left: "15px", fontSize: "18px" }}>🔍</span>
           <input 
             type="text" 
-            placeholder="증상, 부품, 고장코드, 토크 등을 검색..."
+            placeholder="증상, 고장코드(P0..), 토크 검색"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onFocus={() => setIsFocused(true)}
-            onBlur={() => setTimeout(() => setIsFocused(false), 200)} // 클릭이벤트를 위해 딜레이
+            onBlur={() => setTimeout(() => setIsFocused(false), 200)} 
             style={{
               width: "100%", padding: "15px 15px 15px 45px", borderRadius: "15px", border: "1.5px solid #333",
               backgroundColor: "#000", color: "#fff", fontSize: "14px", fontWeight: "bold", outline: "none"
@@ -285,7 +336,6 @@ const IntroScreen = ({ setView }) => {
       audioRef.current.volume = 0; 
       audioRef.current.play().catch(e => console.log("Audio play blocked", e));
     }
-
     let currentOpacity = 0;
     const fadeIn = setInterval(() => {
       currentOpacity += 0.05;
@@ -459,48 +509,56 @@ const DiagnosticScreen = ({ setView, selectedModel }) => {
   return (
     <div style={{ ...styles.root, justifyContent: "flex-start", padding: "10px" }} translate="no">
       <button onClick={handleBack} style={styles.backBtn}>← BACK</button>
-      <div style={{ ...styles.fullCenter, marginTop: "60px" }}>
+      <div style={{ ...styles.fullCenter, marginTop: "60px", paddingBottom: "100px", overflowY: "auto", display: "block" }}>
         <h2 style={{ fontSize: "16px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px", letterSpacing: "1px" }}>{selectedModel || '368E'} 진단 모드</h2>
         <h2 style={{ fontSize: "20px", color: "#ef4444", fontWeight: "900", marginBottom: "15px", letterSpacing: "2px" }}>고장 추적 진단</h2>
         
-        <div style={{ width: "100%", maxWidth: "450px", backgroundColor: "#0a0a0a", borderRadius: "24px", border: "2px solid #222", padding: "30px", boxSizing: "border-box" }}>
+        <div style={{ width: "100%", maxWidth: "450px", margin: "0 auto", backgroundColor: "#0a0a0a", borderRadius: "24px", border: "2px solid #222", padding: "20px", boxSizing: "border-box" }}>
           {!diagnosticResult ? (
             <>
-              <p style={{ fontSize: "22px", fontWeight: "900", lineHeight: "1.5", color: "#fff", marginBottom: "40px" }}>
+              <p style={{ fontSize: "18px", fontWeight: "900", lineHeight: "1.5", color: "#fff", marginBottom: "30px", whiteSpace: "pre-wrap" }}>
                 {node?.question || "데이터를 찾을 수 없습니다."}
               </p>
               
-              <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-                {node?.options?.map((opt, i) => (
-                  <button 
-                    key={i} 
-                    onClick={() => handleOption(opt)}
-                    style={{ 
-                      padding: "18px 25px", borderRadius: "15px", border: "1px solid #333", backgroundColor: "#111",
-                      color: "#fff", fontSize: "16px", fontWeight: "bold", cursor: "pointer", textAlign: "left",
-                      display: "flex", justifyContent: "space-between", alignItems: "center"
-                    }}
-                  >
-                    <span>{opt.text}</span>
-                    <span style={{ color: "#ef4444" }}>➔</span>
-                  </button>
-                ))}
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "500px", overflowY: "auto", paddingRight: "5px" }}>
+                {node?.options?.map((opt, i) => {
+                  // 고장코드 다이렉트 버튼은 빨간색 테두리로 강조
+                  const isDTCBtn = opt.text.includes("고장코드(DTC)");
+                  return (
+                    <button 
+                      key={i} 
+                      onClick={() => handleOption(opt)}
+                      style={{ 
+                        padding: "16px 20px", borderRadius: "12px", 
+                        border: isDTCBtn ? "2px solid #ef4444" : "1px solid #333", 
+                        backgroundColor: isDTCBtn ? "#1a0505" : "#111",
+                        color: isDTCBtn ? "#ff8888" : "#fff", 
+                        fontSize: "15px", fontWeight: "bold", cursor: "pointer", textAlign: "left",
+                        display: "flex", justifyContent: "space-between", alignItems: "center",
+                        minHeight: "56px"
+                      }}
+                    >
+                      <span style={{flex: 1, paddingRight: "10px", wordBreak: "keep-all"}}>{opt.text}</span>
+                      <span style={{ color: isDTCBtn ? "#ef4444" : "#f59e0b" }}>➔</span>
+                    </button>
+                  );
+                })}
               </div>
             </>
           ) : (
-            <div style={{ padding: "25px", backgroundColor: "#1a1200", borderRadius: "15px", border: "2px solid #f59e0b", textAlign: "left" }}>
+            <div style={{ padding: "20px", backgroundColor: "#1a1200", borderRadius: "15px", border: "2px solid #f59e0b", textAlign: "left" }}>
               <p style={{ color: "#f59e0b", fontWeight: "900", fontSize: "14px", marginBottom: "10px" }}>🚨 진단 결과 및 조치</p>
               <p style={{ color: "#fff", fontSize: "16px", fontWeight: "bold", lineHeight: "1.6", whiteSpace: "pre-wrap" }}>
                 {diagnosticResult}
               </p>
               <button onClick={handleRestart} style={{ marginTop: "25px", width: "100%", padding: "15px", borderRadius: "10px", border: "none", backgroundColor: "#f59e0b", color: "#000", fontWeight: "900", cursor: "pointer" }}>
-                다시 진단하기
+                처음으로 돌아가기
               </button>
             </div>
           )}
         </div>
         
-        <p style={{ marginTop: "40px", color: "#444", fontSize: "12px" }}>
+        <p style={{ marginTop: "30px", color: "#444", fontSize: "12px" }}>
           ※ 이 진단 로직은 {selectedModel || '368E'} 시스템을 기반으로 설계되었습니다.
         </p>
       </div>
@@ -571,14 +629,12 @@ const CategoriesScreen = ({ setView, selectedModel, setSelectedCategory }) => (
 
 const EngineLibraryScreen = ({ setView, selectedModel }) => {
   const [selectedFileId, setSelectedFileId] = useState(null);
-  
   return (
     <div style={{ ...styles.root, justifyContent: "flex-start", padding: "10px" }} translate="no">
       <button onClick={() => setView("categories")} style={styles.backBtn}>← BACK</button>
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '60px', overflowY: 'auto', flex: 1, paddingBottom: '80px' }}>
         <h2 style={{ fontSize: "18px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px" }}>{selectedModel || '368E'} - 엔진</h2>
         <h1 style={{ fontSize: "24px", fontWeight: "900", marginBottom: "30px", fontStyle: "italic", color: "#FFFFFF" }}>ENGINE MANUAL LIBRARY</h1>
-        
         <div style={{ display: "flex", flexDirection: "column", gap: "25px", width: "100%", alignItems: "center" }}>
           {ENGINE_RESOURCES.map(res => (
             <div key={res.id} onClick={() => setSelectedFileId(res.fileId)} style={{ width: "100%", maxWidth: "450px", backgroundColor: "#0a0a0a", borderRadius: "24px", border: "1.5px solid #222", overflow: "hidden", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
@@ -593,7 +649,6 @@ const EngineLibraryScreen = ({ setView, selectedModel }) => {
           ))}
         </div>
       </div>
-
       {selectedFileId && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "#000", zIndex: 11000, display: "flex", flexDirection: "column", padding: "10px" }}>
           <header style={{ width: '100%', display: 'flex', justifyContent: 'space-between', padding: '15px 0' }}>
@@ -611,14 +666,12 @@ const EngineLibraryScreen = ({ setView, selectedModel }) => {
 
 const FrameLibraryScreen = ({ setView, selectedModel }) => {
   const [selectedFileId, setSelectedFileId] = useState(null);
-  
   return (
     <div style={{ ...styles.root, justifyContent: "flex-start", padding: "10px" }} translate="no">
       <button onClick={() => setView("categories")} style={styles.backBtn}>← BACK</button>
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '60px', overflowY: 'auto', flex: 1, paddingBottom: '80px' }}>
         <h2 style={{ fontSize: "18px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px" }}>{selectedModel || '368E'} - 프레임</h2>
         <h1 style={{ fontSize: "24px", fontWeight: "900", marginBottom: "30px", fontStyle: "italic", color: "#FFFFFF" }}>FRAME MANUAL LIBRARY</h1>
-        
         <div style={{ display: "flex", flexDirection: "column", gap: "25px", width: "100%", alignItems: "center" }}>
           {FRAME_RESOURCES.map(res => (
             <div key={res.id} onClick={() => setSelectedFileId(res.fileId)} style={{ width: "100%", maxWidth: "450px", backgroundColor: "#0a0a0a", borderRadius: "24px", border: "1.5px solid #222", overflow: "hidden", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
@@ -633,7 +686,6 @@ const FrameLibraryScreen = ({ setView, selectedModel }) => {
           ))}
         </div>
       </div>
-
       {selectedFileId && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "#000", zIndex: 11000, display: "flex", flexDirection: "column", padding: "10px" }}>
           <header style={{ width: '100%', display: 'flex', justifyContent: 'space-between', padding: '15px 0' }}>
@@ -721,14 +773,12 @@ const ScanMenuScreen = ({ setView, selectedModel }) => {
 
 const ScanAnalysisLibraryScreen = ({ setView, selectedModel }) => {
   const [selectedFileId, setSelectedFileId] = useState(null);
-  
   return (
     <div style={{ ...styles.root, justifyContent: "flex-start", padding: "10px" }} translate="no">
       <button onClick={() => setView("scan_menu")} style={styles.backBtn}>← BACK</button>
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '60px', overflowY: 'auto', flex: 1, paddingBottom: '80px' }}>
         <h2 style={{ fontSize: "18px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px" }}>{selectedModel || '368E'} - 스캔 분석</h2>
         <h1 style={{ fontSize: "24px", fontWeight: "900", marginBottom: "30px", fontStyle: "italic", color: "#FFFFFF" }}>SCAN ANALYSIS DATA</h1>
-        
         <div style={{ display: "flex", flexDirection: "column", gap: "25px", width: "100%", alignItems: "center" }}>
           {SCAN_ANALYSIS_RESOURCES.map(res => (
             <div key={res.id} onClick={() => setSelectedFileId(res.fileId)} style={{ width: "100%", maxWidth: "450px", backgroundColor: "#0a0a0a", borderRadius: "24px", border: "1.5px solid #222", overflow: "hidden", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
@@ -743,7 +793,6 @@ const ScanAnalysisLibraryScreen = ({ setView, selectedModel }) => {
           ))}
         </div>
       </div>
-
       {selectedFileId && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "#000", zIndex: 11000, display: "flex", flexDirection: "column", padding: "10px" }}>
           <header style={{ width: '100%', display: 'flex', justifyContent: 'space-between', padding: '15px 0' }}>
@@ -761,14 +810,12 @@ const ScanAnalysisLibraryScreen = ({ setView, selectedModel }) => {
 
 const FaultCodeLibraryScreen = ({ setView, selectedModel }) => {
   const [selectedFileId, setSelectedFileId] = useState(null);
-  
   return (
     <div style={{ ...styles.root, justifyContent: "flex-start", padding: "10px" }} translate="no">
       <button onClick={() => setView("scan_menu")} style={styles.backBtn}>← BACK</button>
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '60px', overflowY: 'auto', flex: 1, paddingBottom: '80px' }}>
         <h2 style={{ fontSize: "18px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px" }}>{selectedModel || '368E'} - 고장코드</h2>
         <h1 style={{ fontSize: "24px", fontWeight: "900", marginBottom: "30px", fontStyle: "italic", color: "#FFFFFF" }}>FAULT CODE DATA</h1>
-        
         <div style={{ display: "flex", flexDirection: "column", gap: "25px", width: "100%", alignItems: "center" }}>
           {FAULT_CODE_RESOURCES.map(res => (
             <div key={res.id} onClick={() => setSelectedFileId(res.fileId)} style={{ width: "100%", maxWidth: "450px", backgroundColor: "#0a0a0a", borderRadius: "24px", border: "1.5px solid #222", overflow: "hidden", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
@@ -783,7 +830,6 @@ const FaultCodeLibraryScreen = ({ setView, selectedModel }) => {
           ))}
         </div>
       </div>
-
       {selectedFileId && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "#000", zIndex: 11000, display: "flex", flexDirection: "column", padding: "10px" }}>
           <header style={{ width: '100%', display: 'flex', justifyContent: 'space-between', padding: '15px 0' }}>
@@ -944,12 +990,10 @@ export default function App() {
     setUserRole(null); setIsAutoLogReady(false); setView("splash");
   };
 
-  // 검색 결과를 클릭했을 때 화면 전환을 처리하는 함수
   const handleSearchResultClick = (action) => {
     setView(action);
   };
 
-  // 현재 화면에 따라 렌더링
   const renderView = () => {
     switch (view) {
       case "splash": return <SplashScreen setView={setView} isAutoLogReady={isAutoLogReady} lockApp={lockApp} />;
@@ -976,7 +1020,6 @@ export default function App() {
   return (
     <>
       {renderView()}
-      {/* 로그인과 스플래시 화면이 아닐 때만 하단 검색바 표시 */}
       {view !== "splash" && view !== "intro" && view !== "login" && (
         <BottomSearchBar onSearchResultClick={handleSearchResultClick} />
       )}
