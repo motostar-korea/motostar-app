@@ -1,16 +1,16 @@
-{
-    "short_name": "Motostar",
-    "name": "Motostar Technical Support",
-    "icons": [
-      {
-        "src": "favicon.png",
-        "sizes": "192x192 512x512",
-        "type": "image/png",
-        "purpose": "any maskable"
-      }
-    ],
-    "start_url": ".",
-    "display": "standalone",
-    "theme_color": "#000000",
-    "background_color": "#000000"
-  }
+<!doctype html>
+<html lang="en">
+  <head><!-- 디자인 페인트(Tailwind) 가져오기 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>motostar-app</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
