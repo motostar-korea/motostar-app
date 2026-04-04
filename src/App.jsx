@@ -19,6 +19,7 @@ const CATEGORIES = [
   { id: "electrical", name: "전장 (ELECTRICAL)", isReady: true }
 ];
 
+// --- 자료실 데이터 ---
 const ELECTRICAL_RESOURCES = [
   { id: "res1", title: "ZONTES 368E 스마트 리시버(PKE) 완벽 해부", type: "VIDEO", fileId: "18e92VGc4-tMHbtyWck2CxQ_onUN1LVmj" },
   { id: "res2", title: "368E 전장 회로도 및 배선 상세", type: "PDF", fileId: "1irtuLNez68hZGYsPv8_3HLAHPeWCwCkh" },
@@ -27,47 +28,20 @@ const ELECTRICAL_RESOURCES = [
 ];
 
 const FRAME_RESOURCES = [
-  { 
-    id: "f_res1", 
-    title: "ZT 125/250/350/368E 차대 서비스 매뉴얼", 
-    type: "PDF", 
-    fileId: "1ufwR_c2YIoj4Th-6wX_GXeFKJ2qdZ11o" 
-  },
-  { 
-    id: "f_res2", 
-    title: "오너스 매뉴얼 368T-E", 
-    type: "PDF", 
-    fileId: "1rFlCz0tBz5j9RWmBzUUYe2bOlXVhdRah" 
-  }
+  { id: "f_res1", title: "ZT 125/250/350/368E 차대 서비스 매뉴얼", type: "PDF", fileId: "1ufwR_c2YIoj4Th-6wX_GXeFKJ2qdZ11o" },
+  { id: "f_res2", title: "오너스 매뉴얼 368T-E", type: "PDF", fileId: "1rFlCz0tBz5j9RWmBzUUYe2bOlXVhdRah" }
 ];
 
 const ENGINE_RESOURCES = [
-  { 
-    id: "e_res1", 
-    title: "368E 엔진 서비스 매뉴얼", 
-    type: "PDF", 
-    fileId: "1Yo-MdOcFp9OP28zcaSkn8GoUgoYMezqY" 
-  }
+  { id: "e_res1", title: "368E 엔진 서비스 매뉴얼", type: "PDF", fileId: "1Yo-MdOcFp9OP28zcaSkn8GoUgoYMezqY" }
 ];
 
-// ⭐ [신규] 스캔 분석 자료 데이터 (나중에 파일 ID 추가)
 const SCAN_ANALYSIS_RESOURCES = [
-  { 
-    id: "sa_res1", 
-    title: "진단기 스캔 데이터 분석 방법", 
-    type: "PDF", 
-    fileId: "여기에_스캔분석자료_ID_입력" 
-  }
+  { id: "sa_res1", title: "진단기 스캔 데이터 분석 방법", type: "PDF", fileId: "여기에_스캔분석자료_ID_입력" }
 ];
 
-// ⭐ [신규] 고장코드 자료 데이터 (나중에 파일 ID 추가)
 const FAULT_CODE_RESOURCES = [
-  { 
-    id: "fc_res1", 
-    title: "전 차종 고장코드(DTC) 상세표", 
-    type: "PDF", 
-    fileId: "여기에_고장코드자료_ID_입력" 
-  }
+  { id: "fc_res1", title: "전 차종 고장코드(DTC) 상세표", type: "PDF", fileId: "여기에_고장코드자료_ID_입력" }
 ];
 
 /**
@@ -128,105 +102,33 @@ const DIAGNOSTIC_LOGIC = {
 
 const startSequenceData = {
   steps: [
-    { 
-      id: 1, 
-      title: "PKE 웨이크업 (기상)", 
-      wiring: "헤드락 스위치 ➔ PKE 31번 (Y/R2)", 
-      check: "[입력] +12V 유입 확인", 
-      tip: "적색 버튼을 누르면 PKE 시스템이 잠에서 깨어납니다.",
-      images: ["step1.png"]
-    },
-    { 
-      id: 2, 
-      title: "스마트키 호출", 
-      wiring: "PKE 22, 23번 ➔ LF 안테나", 
-      check: "[출력] 저주파 펄스 방출", 
-      tip: "바이크가 리모컨을 찾기 위해 호출 신호를 쏩니다.",
-      images: ["step2.png"]
-    },
-    { 
-      id: 3, 
-      title: "암호 인증", 
-      wiring: "리모컨 ➔ PKE 내부 안테나", 
-      check: "[수신] 고주파(HF) 암호 수신", 
-      tip: "PKE가 리모컨의 암호를 수신하고 인증을 완료합니다.",
-      images: ["step2.png"]
-    },
-    { 
-      id: 4, 
-      title: "핸들락 해제 지시", 
-      wiring: "PKE 14번 ➔ 핸들락 모터 (W/Y1)", 
-      check: "[출력] +12V 전원 공급", 
-      tip: "모터가 돌면서 기계적으로 핸들락을 풉니다.",
-      images: ["step2.png"]
-    },
-    { 
-      id: 5, 
-      title: "핸들락 해제 확인", 
-      wiring: "핸들락 내부 스위치 ➔ PKE 30번 (O/B1)", 
-      check: "[입력] +12V 피드백 유입", 
-      tip: "모터가 다 풀리면 들어오는 가장 중요한 피드백 신호입니다.",
-      images: ["step3.png"] 
-    },
-    { 
-      id: 6, 
-      title: "메인전원(ACC) 인가 및 분기", 
-      wiring: "PKE 2, 3번 ➔ 세컨 퓨즈박스", 
-      check: "[출력] +12V (B단자)", 
-      tip: "안전 확인 후 바이크 전체에 ACC 전원이 공급됩니다.",
-      detail: "B단자에서 +12V 분기:\n1. W/B1: Engine flameout switch +전원\n2. U/Y1: ABS ECM, OBD 단자 +전원\n3. P: 패싱, 혼, 윙커, F/R 미등 +전원\n4. B1: 스피드메터, 열선, 도난경보기, USB 등 +전원",
-      images: ["step4.png"]
-    },
-    { 
-      id: 7, 
-      title: "킬 스위치 ON (안전 확보)", 
-      wiring: "우측 킬 스위치 ➔ ECU 31번", 
-      check: "[입력] B/W 배선 +12V 변환", 
-      tip: "ECU가 깨어나고, 주행 중 핸들 잠김 방지 전원이 인가됩니다.",
-      images: ["step5.png"]
-    },
-    { 
-      id: 8, 
-      title: "메인 릴레이 구동", 
-      wiring: "ECU 5번 (O/B) ➔ 메인 릴레이", 
-      check: "[출력] - 접지 신호 인가", 
-      tip: "릴레이 작동 시 W/B 단자에서 +12V 출력. (연료펌프, 인젝터, 캐니스터, 이그니션 코일 등에 전원 인가)",
-      images: ["step6.png", "step7.png"]
-    },
-    { 
-      id: 9, 
-      title: "브레이크 신호 입력", 
-      wiring: "브레이크 스위치 ➔ PKE 34번 / ECU 20번 (L/G1)", 
-      check: "[입력] - 접지 신호 유입", 
-      tip: "좌/우 레버 조작 여부를 감지하며, 시동 필수 조건이 충족됩니다.",
-      images: ["step8.png"]
-    },
-    { 
-      id: 10, 
-      title: "스타트 버튼 조작", 
-      wiring: "스타트 스위치 ➔ 메인 스타터 릴레이", 
-      check: "[입력] +12V 제어 전원 (Y/R)", 
-      tip: "스타트 버튼의 +12V 전기가 릴레이 코일로 직행하여 자력을 생성합니다.",
-      images: ["step9.png"]
-    },
-    { 
-      id: 11, 
-      title: "시동 승인 (보조 릴레이)", 
-      wiring: "ECU 15번 ➔ 보조 릴레이", 
-      check: "[출력] - 접지 승인 신호 (R/G)", 
-      tip: "ECU가 모든 안전 조건을 검토한 후 최종적으로 마이너스(-) 신호를 보조 릴레이로 전달합니다.",
-      images: ["step10.png"]
-    },
-    { 
-      id: 12, 
-      title: "최종 시동 폭발", 
-      wiring: "메인 스타터 릴레이 결합 ➔ 스타터 모터", 
-      check: "Engine 가동 (회전)", 
-      tip: "릴레이가 강하게 붙으며 스타터 모터가 회전하고 엔진 시동이 완료됩니다!",
-      images: []
-    }
+    { id: 1, title: "PKE 웨이크업 (기상)", wiring: "헤드락 스위치 ➔ PKE 31번 (Y/R2)", check: "[입력] +12V 유입 확인", tip: "적색 버튼을 누르면 PKE 시스템이 잠에서 깨어납니다.", images: ["step1.png"] },
+    { id: 2, title: "스마트키 호출", wiring: "PKE 22, 23번 ➔ LF 안테나", check: "[출력] 저주파 펄스 방출", tip: "바이크가 리모컨을 찾기 위해 호출 신호를 쏩니다.", images: ["step2.png"] },
+    { id: 3, title: "암호 인증", wiring: "리모컨 ➔ PKE 내부 안테나", check: "[수신] 고주파(HF) 암호 수신", tip: "PKE가 리모컨의 암호를 수신하고 인증을 완료합니다.", images: ["step2.png"] },
+    { id: 4, title: "핸들락 해제 지시", wiring: "PKE 14번 ➔ 핸들락 모터 (W/Y1)", check: "[출력] +12V 전원 공급", tip: "모터가 돌면서 기계적으로 핸들락을 풉니다.", images: ["step2.png"] },
+    { id: 5, title: "핸들락 해제 확인", wiring: "핸들락 내부 스위치 ➔ PKE 30번 (O/B1)", check: "[입력] +12V 피드백 유입", tip: "모터가 다 풀리면 들어오는 가장 중요한 피드백 신호입니다.", images: ["step3.png"] },
+    { id: 6, title: "메인전원(ACC) 인가 및 분기", wiring: "PKE 2, 3번 ➔ 세컨 퓨즈박스", check: "[출력] +12V (B단자)", tip: "안전 확인 후 바이크 전체에 ACC 전원이 공급됩니다.", detail: "B단자에서 +12V 분기:\n1. W/B1: Engine flameout switch +전원\n2. U/Y1: ABS ECM, OBD 단자 +전원\n3. P: 패싱, 혼, 윙커, F/R 미등 +전원\n4. B1: 스피드메터, 열선, 도난경보기, USB 등 +전원", images: ["step4.png"] },
+    { id: 7, title: "킬 스위치 ON (안전 확보)", wiring: "우측 킬 스위치 ➔ ECU 31번", check: "[입력] B/W 배선 +12V 변환", tip: "ECU가 깨어나고, 주행 중 핸들 잠김 방지 전원이 인가됩니다.", images: ["step5.png"] },
+    { id: 8, title: "메인 릴레이 구동", wiring: "ECU 5번 (O/B) ➔ 메인 릴레이", check: "[출력] - 접지 신호 인가", tip: "릴레이 작동 시 W/B 단자에서 +12V 출력. (연료펌프, 인젝터, 캐니스터, 이그니션 코일 등에 전원 인가)", images: ["step6.png", "step7.png"] },
+    { id: 9, title: "브레이크 신호 입력", wiring: "브레이크 스위치 ➔ PKE 34번 / ECU 20번 (L/G1)", check: "[입력] - 접지 신호 유입", tip: "좌/우 레버 조작 여부를 감지하며, 시동 필수 조건이 충족됩니다.", images: ["step8.png"] },
+    { id: 10, title: "스타트 버튼 조작", wiring: "스타트 스위치 ➔ 메인 스타터 릴레이", check: "[입력] +12V 제어 전원 (Y/R)", tip: "스타트 버튼의 +12V 전기가 릴레이 코일로 직행하여 자력을 생성합니다.", images: ["step9.png"] },
+    { id: 11, title: "시동 승인 (보조 릴레이)", wiring: "ECU 15번 ➔ 보조 릴레이", check: "[출력] - 접지 승인 신호 (R/G)", tip: "ECU가 모든 안전 조건을 검토한 후 최종적으로 마이너스(-) 신호를 보조 릴레이로 전달합니다.", images: ["step10.png"] },
+    { id: 12, title: "최종 시동 폭발", wiring: "메인 스타터 릴레이 결합 ➔ 스타터 모터", check: "Engine 가동 (회전)", tip: "릴레이가 강하게 붙으며 스타터 모터가 회전하고 엔진 시동이 완료됩니다!", images: [] }
   ]
 };
+
+// ⭐ [신규 추가] 통합 검색용 데이터 베이스 (앱의 모든 자료를 하나로 묶음)
+// tags 키워드를 통해 검색 시 매칭되도록 합니다.
+const SEARCH_DATABASE = [
+  { id: "s1", title: "고장 추적 진단 (AI Logic) 시작", type: "DIAGNOSTIC", action: "diagnostic", tags: ["시동불량", "전원", "먹통", "스타터", "배터리", "시동꺼짐"] },
+  { id: "s2", title: "시동 시퀀스 분석 12단계", type: "SEQUENCE", action: "sequence", tags: ["시동", "시퀀스", "PKE", "릴레이", "스마트키", "적색버튼", "12v"] },
+  { id: "s3", title: "368E 전체 회로도 (Wiring Diagram)", type: "DIAGRAM", action: "wiring_diagram", tags: ["회로도", "배선도", "배선", "컬러", "색상", "전장"] },
+  { id: "s4", title: "스캔 분석 데이터", type: "SCAN", action: "scan_analysis_library", tags: ["스캔", "진단기", "데이터분석"] },
+  { id: "s5", title: "고장코드(DTC) 목록", type: "CODE", action: "fault_code_library", tags: ["고장코드", "dtc", "에러", "경고등", "p0"] },
+  { id: "s6", title: "프레임 매뉴얼 (차대, 조립, 토크)", type: "MANUAL", action: "frame_library", tags: ["프레임", "차대", "토크", "조립", "카울", "볼트", "메뉴얼"] },
+  { id: "s7", title: "엔진 매뉴얼 (분해, 조립, 토크)", type: "MANUAL", action: "engine_library", tags: ["엔진", "분해", "토크", "조립", "메뉴얼", "타이밍"] }
+];
+
 
 /**
  * ==========================================
@@ -241,7 +143,9 @@ const styles = {
   },
   fullCenter: {
     display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-    width: "100%", flex: 1, textAlign: "center", padding: "20px", boxSizing: "border-box"
+    width: "100%", flex: 1, textAlign: "center", padding: "20px", boxSizing: "border-box",
+    // 하단 검색바 때문에 아래쪽 여백 확보
+    paddingBottom: "80px" 
   },
   menuCard: {
     width: "95%", maxWidth: "380px", padding: "24px", borderRadius: "24px", borderWidth: "1.5px", borderStyle: "solid",
@@ -261,6 +165,93 @@ const styles = {
  * 3. COMPONENTS (화면별 분할 컴포넌트)
  * ==========================================
  */
+
+// ⭐ [신규 추가] 항상 하단에 떠 있는 통합 검색바 컴포넌트
+const BottomSearchBar = ({ onSearchResultClick }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isFocused, setIsFocused] = useState(false);
+
+  // 검색 로직
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setSearchResults([]);
+      return;
+    }
+    const term = searchTerm.toLowerCase();
+    const results = SEARCH_DATABASE.filter(item => 
+      item.title.toLowerCase().includes(term) || 
+      item.tags.some(tag => tag.toLowerCase().includes(term))
+    );
+    setSearchResults(results);
+  }, [searchTerm]);
+
+  return (
+    <div style={{
+      position: "fixed", bottom: 0, left: 0, width: "100%", zIndex: 12000,
+      display: "flex", flexDirection: "column", alignItems: "center",
+      transition: "all 0.3s ease"
+    }}>
+      {/* 검색 결과 리스트 (위로 팝업됨) */}
+      {isFocused && searchResults.length > 0 && (
+        <div style={{
+          width: "95%", maxWidth: "450px", backgroundColor: "#111", borderRadius: "20px 20px 0 0",
+          border: "2px solid #333", borderBottom: "none", padding: "10px",
+          maxHeight: "300px", overflowY: "auto", boxShadow: "0 -10px 30px rgba(0,0,0,0.8)"
+        }}>
+          {searchResults.map(result => (
+            <div 
+              key={result.id}
+              onClick={() => {
+                setSearchTerm("");
+                setIsFocused(false);
+                onSearchResultClick(result.action);
+              }}
+              style={{
+                padding: "15px", borderBottom: "1px solid #222", cursor: "pointer",
+                display: "flex", justifyContent: "space-between", alignItems: "center"
+              }}
+            >
+              <div>
+                <span style={{ fontSize: "10px", color: "#f59e0b", border: "1px solid #f59e0b", padding: "2px 6px", borderRadius: "4px", marginRight: "8px" }}>{result.type}</span>
+                <span style={{ color: "#fff", fontWeight: "bold", fontSize: "14px" }}>{result.title}</span>
+              </div>
+              <span style={{ color: "#555" }}>➔</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 검색창 본체 */}
+      <div style={{
+        width: "100%", backgroundColor: "#0a0a0a", padding: "15px 20px", borderTop: "2px solid #222",
+        display: "flex", justifyContent: "center", boxSizing: "border-box"
+      }}>
+        <div style={{
+          width: "100%", maxWidth: "450px", position: "relative", display: "flex", alignItems: "center"
+        }}>
+          <span style={{ position: "absolute", left: "15px", fontSize: "18px" }}>🔍</span>
+          <input 
+            type="text" 
+            placeholder="증상, 부품, 고장코드, 토크 등을 검색..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setTimeout(() => setIsFocused(false), 200)} // 클릭이벤트를 위해 딜레이
+            style={{
+              width: "100%", padding: "15px 15px 15px 45px", borderRadius: "15px", border: "1.5px solid #333",
+              backgroundColor: "#000", color: "#fff", fontSize: "14px", fontWeight: "bold", outline: "none"
+            }}
+          />
+          {searchTerm && (
+            <button onClick={() => setSearchTerm("")} style={{ position: "absolute", right: "15px", background: "none", border: "none", color: "#888", fontSize: "16px", cursor: "pointer", padding: "5px" }}>✕</button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 const SplashScreen = ({ setView, isAutoLogReady, lockApp }) => (
   <div style={styles.root} translate="no">
@@ -428,7 +419,6 @@ const MainScreen = ({ setView, lockApp }) => (
         <span style={{ color: "#93c5fd" }}>📂 정비 자료실 (Cloud)</span><span style={{ fontSize: "12px", color: "#3b82f6" }}>OPEN</span>
       </button>
     </div>
-    <p style={{ position: "absolute", bottom: "25px", color: "#555", fontSize: "11px", fontStyle: "italic", fontWeight: "900", letterSpacing: "6px", left: "50%", transform: "translateX(-50%)" }}>SINCE 1998</p>
   </div>
 );
 
@@ -470,7 +460,7 @@ const DiagnosticScreen = ({ setView, selectedModel }) => {
     <div style={{ ...styles.root, justifyContent: "flex-start", padding: "10px" }} translate="no">
       <button onClick={handleBack} style={styles.backBtn}>← BACK</button>
       <div style={{ ...styles.fullCenter, marginTop: "60px" }}>
-        <h2 style={{ fontSize: "16px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px", letterSpacing: "1px" }}>{selectedModel} 진단 모드</h2>
+        <h2 style={{ fontSize: "16px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px", letterSpacing: "1px" }}>{selectedModel || '368E'} 진단 모드</h2>
         <h2 style={{ fontSize: "20px", color: "#ef4444", fontWeight: "900", marginBottom: "15px", letterSpacing: "2px" }}>고장 추적 진단</h2>
         
         <div style={{ width: "100%", maxWidth: "450px", backgroundColor: "#0a0a0a", borderRadius: "24px", border: "2px solid #222", padding: "30px", boxSizing: "border-box" }}>
@@ -511,7 +501,7 @@ const DiagnosticScreen = ({ setView, selectedModel }) => {
         </div>
         
         <p style={{ marginTop: "40px", color: "#444", fontSize: "12px" }}>
-          ※ 이 진단 로직은 {selectedModel} 시스템을 기반으로 설계되었습니다.
+          ※ 이 진단 로직은 {selectedModel || '368E'} 시스템을 기반으로 설계되었습니다.
         </p>
       </div>
     </div>
@@ -586,7 +576,7 @@ const EngineLibraryScreen = ({ setView, selectedModel }) => {
     <div style={{ ...styles.root, justifyContent: "flex-start", padding: "10px" }} translate="no">
       <button onClick={() => setView("categories")} style={styles.backBtn}>← BACK</button>
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '60px', overflowY: 'auto', flex: 1, paddingBottom: '80px' }}>
-        <h2 style={{ fontSize: "18px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px" }}>{selectedModel} - 엔진</h2>
+        <h2 style={{ fontSize: "18px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px" }}>{selectedModel || '368E'} - 엔진</h2>
         <h1 style={{ fontSize: "24px", fontWeight: "900", marginBottom: "30px", fontStyle: "italic", color: "#FFFFFF" }}>ENGINE MANUAL LIBRARY</h1>
         
         <div style={{ display: "flex", flexDirection: "column", gap: "25px", width: "100%", alignItems: "center" }}>
@@ -626,7 +616,7 @@ const FrameLibraryScreen = ({ setView, selectedModel }) => {
     <div style={{ ...styles.root, justifyContent: "flex-start", padding: "10px" }} translate="no">
       <button onClick={() => setView("categories")} style={styles.backBtn}>← BACK</button>
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '60px', overflowY: 'auto', flex: 1, paddingBottom: '80px' }}>
-        <h2 style={{ fontSize: "18px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px" }}>{selectedModel} - 프레임</h2>
+        <h2 style={{ fontSize: "18px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px" }}>{selectedModel || '368E'} - 프레임</h2>
         <h1 style={{ fontSize: "24px", fontWeight: "900", marginBottom: "30px", fontStyle: "italic", color: "#FFFFFF" }}>FRAME MANUAL LIBRARY</h1>
         
         <div style={{ display: "flex", flexDirection: "column", gap: "25px", width: "100%", alignItems: "center" }}>
@@ -659,16 +649,12 @@ const FrameLibraryScreen = ({ setView, selectedModel }) => {
   );
 };
 
-/**
- * [전장 메뉴 화면]
- * 수정: 스캔 메뉴 활성화 및 이름 변경
- */
 const ElectricalMenuScreen = ({ setView, selectedModel }) => {
   const subMenus = [
     { id: "smart", name: "스마트 (SMART SYSTEM)", isReady: true },
     { id: "sequence", name: "시동 시퀀스 (START SEQUENCE)", isReady: true },
     { id: "wiring", name: "전체 회로도 (WIRING DIAGRAM)", isReady: true },
-    { id: "scan", name: "스캔 분석 및 고장코드", isReady: true }, // 활성화됨!
+    { id: "scan", name: "스캔 분석 및 고장코드", isReady: true },
     { id: "ecu", name: "ECU (CONTROL UNIT)", isReady: false }
   ];
   return (
@@ -682,7 +668,7 @@ const ElectricalMenuScreen = ({ setView, selectedModel }) => {
             let pointColor = "#f59e0b"; 
             if (menu.id === "sequence") pointColor = "#ef4444"; 
             if (menu.id === "wiring") pointColor = "#10b981"; 
-            if (menu.id === "scan") pointColor = "#8b5cf6"; // 보라색 포인트 추가
+            if (menu.id === "scan") pointColor = "#8b5cf6"; 
 
             return (
               <button key={menu.id} onClick={() => { 
@@ -690,7 +676,7 @@ const ElectricalMenuScreen = ({ setView, selectedModel }) => {
                   if(menu.id === "smart") setView("electrical_library"); 
                   else if(menu.id === "sequence") setView("sequence"); 
                   else if(menu.id === "wiring") setView("wiring_diagram"); 
-                  else if(menu.id === "scan") setView("scan_menu"); // 신규 메뉴로 이동
+                  else if(menu.id === "scan") setView("scan_menu"); 
                 } 
               }} style={{ ...styles.menuCard, borderLeft: `12px solid ${menu.isReady ? pointColor : "#444"}`, opacity: menu.isReady ? 1 : 0.4, cursor: menu.isReady ? "pointer" : "default", padding: "22px 30px" }}>
                 <span style={{color: '#FFFFFF'}}>{menu.name}</span><span style={{ fontSize: '11px', color: menu.isReady ? pointColor : "#888", fontWeight: "900" }}>{menu.isReady ? "GO" : "UPDATING"}</span>
@@ -703,7 +689,6 @@ const ElectricalMenuScreen = ({ setView, selectedModel }) => {
   );
 };
 
-// ⭐ [신규 추가] 스캔 분석 & 고장코드 중간 선택 화면
 const ScanMenuScreen = ({ setView, selectedModel }) => {
   return (
     <div style={{...styles.root, justifyContent: "flex-start", padding: "10px"}} translate="no">
@@ -713,7 +698,6 @@ const ScanMenuScreen = ({ setView, selectedModel }) => {
         <h1 style={{ fontSize: "26px", fontWeight: "900", marginBottom: "40px", fontStyle: "italic", color: "#FFFFFF" }}>SCAN & FAULT CODE</h1>
         
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          {/* 스캔 분석 버튼 */}
           <button 
             onClick={() => setView("scan_analysis_library")} 
             style={{ ...styles.menuCard, borderLeft: `12px solid #8b5cf6`, padding: "25px 30px" }}
@@ -722,7 +706,6 @@ const ScanMenuScreen = ({ setView, selectedModel }) => {
             <span style={{ fontSize: '12px', color: "#8b5cf6", fontWeight: "900" }}>GO</span>
           </button>
 
-          {/* 고장코드 버튼 */}
           <button 
             onClick={() => setView("fault_code_library")} 
             style={{ ...styles.menuCard, borderLeft: `12px solid #ec4899`, padding: "25px 30px" }}
@@ -736,7 +719,6 @@ const ScanMenuScreen = ({ setView, selectedModel }) => {
   );
 };
 
-// ⭐ [신규 추가] 스캔 분석 전용 자료실 화면
 const ScanAnalysisLibraryScreen = ({ setView, selectedModel }) => {
   const [selectedFileId, setSelectedFileId] = useState(null);
   
@@ -744,7 +726,7 @@ const ScanAnalysisLibraryScreen = ({ setView, selectedModel }) => {
     <div style={{ ...styles.root, justifyContent: "flex-start", padding: "10px" }} translate="no">
       <button onClick={() => setView("scan_menu")} style={styles.backBtn}>← BACK</button>
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '60px', overflowY: 'auto', flex: 1, paddingBottom: '80px' }}>
-        <h2 style={{ fontSize: "18px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px" }}>{selectedModel} - 스캔 분석</h2>
+        <h2 style={{ fontSize: "18px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px" }}>{selectedModel || '368E'} - 스캔 분석</h2>
         <h1 style={{ fontSize: "24px", fontWeight: "900", marginBottom: "30px", fontStyle: "italic", color: "#FFFFFF" }}>SCAN ANALYSIS DATA</h1>
         
         <div style={{ display: "flex", flexDirection: "column", gap: "25px", width: "100%", alignItems: "center" }}>
@@ -777,7 +759,6 @@ const ScanAnalysisLibraryScreen = ({ setView, selectedModel }) => {
   );
 };
 
-// ⭐ [신규 추가] 고장코드 전용 자료실 화면
 const FaultCodeLibraryScreen = ({ setView, selectedModel }) => {
   const [selectedFileId, setSelectedFileId] = useState(null);
   
@@ -785,7 +766,7 @@ const FaultCodeLibraryScreen = ({ setView, selectedModel }) => {
     <div style={{ ...styles.root, justifyContent: "flex-start", padding: "10px" }} translate="no">
       <button onClick={() => setView("scan_menu")} style={styles.backBtn}>← BACK</button>
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '60px', overflowY: 'auto', flex: 1, paddingBottom: '80px' }}>
-        <h2 style={{ fontSize: "18px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px" }}>{selectedModel} - 고장코드</h2>
+        <h2 style={{ fontSize: "18px", color: "#f59e0b", fontWeight: "900", marginBottom: "5px" }}>{selectedModel || '368E'} - 고장코드</h2>
         <h1 style={{ fontSize: "24px", fontWeight: "900", marginBottom: "30px", fontStyle: "italic", color: "#FFFFFF" }}>FAULT CODE DATA</h1>
         
         <div style={{ display: "flex", flexDirection: "column", gap: "25px", width: "100%", alignItems: "center" }}>
@@ -847,7 +828,7 @@ const WiringDiagramScreen = ({ setView, selectedModel }) => {
         <button onClick={resetZoom} style={{...controlBtnStyle, color: "#fff", borderColor: "#555"}}>↺ 원본</button>
         <button onClick={zoomIn} style={controlBtnStyle}>+ 확대</button>
       </div>
-      <div style={{ width: '100%', flex: 1, backgroundColor: '#050505', borderRadius: '20px', overflow: 'hidden', border: "2px solid #222", position: "relative", cursor: isDragging ? "grabbing" : "grab", touchAction: "none" }} onWheel={handleWheel} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleMouseUp}>
+      <div style={{ width: '100%', flex: 1, backgroundColor: '#050505', borderRadius: '20px', overflow: 'hidden', border: "2px solid #222", position: "relative", cursor: isDragging ? "grabbing" : "grab", touchAction: "none", marginBottom: "60px" }} onWheel={handleWheel} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleMouseUp}>
         <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`, transformOrigin: "center", transition: isDragging ? "none" : "transform 0.15s ease-out" }}>
           <img src="/368E 회로도.jpeg" alt="Full Wiring Diagram" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", pointerEvents: "none" }} onError={(e) => { e.target.style.display = 'none'; }} />
         </div>
@@ -909,7 +890,7 @@ const SequenceScreen = ({ setView, selectedModel }) => {
           <button key={s.id} onClick={() => setActiveStep(s.id)} style={{ padding: "10px 0", borderRadius: "8px", border: "1px solid #333", backgroundColor: activeStep === s.id ? "#f59e0b" : "#111", color: activeStep === s.id ? "#000" : "#fff", fontWeight: "900", fontSize: "13px" }}>{s.id}</button>
         ))}
       </div>
-      <div style={{ flex: 1, display: "flex", flexWrap: "wrap", gap: "15px", overflowY: "auto", paddingBottom: "20px" }}>
+      <div style={{ flex: 1, display: "flex", flexWrap: "wrap", gap: "15px", overflowY: "auto", paddingBottom: "80px" }}>
         <div style={{ flex: "1 1 500px", minHeight: "350px", backgroundColor: "#0a0a0a", borderRadius: "20px", border: "2px solid #222", display: "flex", flexDirection: "column", padding: "10px", gap: "15px" }}>
           {current?.images?.length > 0 ? current.images.map((imgName, idx) => (<img key={idx} src={`/${imgName}`} alt="" style={{ width: "100%", height: "auto", borderRadius: "10px" }} />)) : <div style={{ textAlign: "center", color: "#555" }}><p style={{ fontSize: "40px" }}>🏍️</p><p>회로도 없음</p></div>}
         </div>
@@ -938,7 +919,7 @@ const CloudViewScreen = ({ setView }) => (
         <button onClick={() => setView("main")} style={styles.backBtn}>← BACK</button>
         <span style={{ fontSize: '12px', color: '#FFFFFF', fontStyle: 'italic', fontWeight: "900" }}>MOTOSTAR CLOUD</span>
     </header>
-    <div style={{ width: "100%", flex: 1, backgroundColor: "#000", borderRadius: "25px", border: "1.5px solid #222", overflow: "hidden", display: "flex", marginTop: "20px", marginBottom: "20px" }}>
+    <div style={{ width: "100%", flex: 1, backgroundColor: "#000", borderRadius: "25px", border: "1.5px solid #222", overflow: "hidden", display: "flex", marginTop: "20px", marginBottom: "80px" }}>
       <iframe src={`https://drive.google.com/embeddedfolderview?id=${DEFAULT_CONFIG.FOLDER_ID}#grid`} style={{ width: "100%", height: "100%", border: "none" }} />
     </div>
   </div>
@@ -963,24 +944,42 @@ export default function App() {
     setUserRole(null); setIsAutoLogReady(false); setView("splash");
   };
 
-  switch (view) {
-    case "splash": return <SplashScreen setView={setView} isAutoLogReady={isAutoLogReady} lockApp={lockApp} />;
-    case "intro": return <IntroScreen setView={setView} />;
-    case "login": return <LoginScreen setView={setView} setUserRole={setUserRole} keepLoggedIn={keepLoggedIn} setKeepLoggedIn={setKeepLoggedIn} />;
-    case "main": return <MainScreen setView={setView} lockApp={lockApp} />;
-    case "diagnostic": return <DiagnosticScreen setView={setView} selectedModel={selectedModel} />;
-    case "models": return <ModelsScreen setView={setView} setSelectedModel={setSelectedModel} />;
-    case "categories": return <CategoriesScreen setView={setView} selectedModel={selectedModel} setSelectedCategory={setSelectedCategory} />;
-    case "electrical_menu": return <ElectricalMenuScreen setView={setView} selectedModel={selectedModel} />;
-    case "electrical_library": return <ElectricalLibraryScreen setView={setView} selectedModel={selectedModel} />;
-    case "frame_library": return <FrameLibraryScreen setView={setView} selectedModel={selectedModel} />;
-    case "engine_library": return <EngineLibraryScreen setView={setView} selectedModel={selectedModel} />; 
-    case "scan_menu": return <ScanMenuScreen setView={setView} selectedModel={selectedModel} />; // 신규 중간 메뉴
-    case "scan_analysis_library": return <ScanAnalysisLibraryScreen setView={setView} selectedModel={selectedModel} />; // 신규 스캔 자료실
-    case "fault_code_library": return <FaultCodeLibraryScreen setView={setView} selectedModel={selectedModel} />; // 신규 고장코드 자료실
-    case "wiring_diagram": return <WiringDiagramScreen setView={setView} selectedModel={selectedModel} />;
-    case "sequence": return <SequenceScreen setView={setView} selectedModel={selectedModel} />;
-    case "cloudView": return <CloudViewScreen setView={setView} />;
-    default: return <div style={styles.root}>Initializing System...</div>;
-  }
+  // 검색 결과를 클릭했을 때 화면 전환을 처리하는 함수
+  const handleSearchResultClick = (action) => {
+    setView(action);
+  };
+
+  // 현재 화면에 따라 렌더링
+  const renderView = () => {
+    switch (view) {
+      case "splash": return <SplashScreen setView={setView} isAutoLogReady={isAutoLogReady} lockApp={lockApp} />;
+      case "intro": return <IntroScreen setView={setView} />;
+      case "login": return <LoginScreen setView={setView} setUserRole={setUserRole} keepLoggedIn={keepLoggedIn} setKeepLoggedIn={setKeepLoggedIn} />;
+      case "main": return <MainScreen setView={setView} lockApp={lockApp} />;
+      case "diagnostic": return <DiagnosticScreen setView={setView} selectedModel={selectedModel} />;
+      case "models": return <ModelsScreen setView={setView} setSelectedModel={setSelectedModel} />;
+      case "categories": return <CategoriesScreen setView={setView} selectedModel={selectedModel} setSelectedCategory={setSelectedCategory} />;
+      case "electrical_menu": return <ElectricalMenuScreen setView={setView} selectedModel={selectedModel} />;
+      case "electrical_library": return <ElectricalLibraryScreen setView={setView} selectedModel={selectedModel} />;
+      case "frame_library": return <FrameLibraryScreen setView={setView} selectedModel={selectedModel} />;
+      case "engine_library": return <EngineLibraryScreen setView={setView} selectedModel={selectedModel} />; 
+      case "scan_menu": return <ScanMenuScreen setView={setView} selectedModel={selectedModel} />;
+      case "scan_analysis_library": return <ScanAnalysisLibraryScreen setView={setView} selectedModel={selectedModel} />;
+      case "fault_code_library": return <FaultCodeLibraryScreen setView={setView} selectedModel={selectedModel} />;
+      case "wiring_diagram": return <WiringDiagramScreen setView={setView} selectedModel={selectedModel} />;
+      case "sequence": return <SequenceScreen setView={setView} selectedModel={selectedModel} />;
+      case "cloudView": return <CloudViewScreen setView={setView} />;
+      default: return <div style={styles.root}>Initializing System...</div>;
+    }
+  };
+
+  return (
+    <>
+      {renderView()}
+      {/* 로그인과 스플래시 화면이 아닐 때만 하단 검색바 표시 */}
+      {view !== "splash" && view !== "intro" && view !== "login" && (
+        <BottomSearchBar onSearchResultClick={handleSearchResultClick} />
+      )}
+    </>
+  );
 }
