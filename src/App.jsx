@@ -36,6 +36,7 @@ const ENGINE_RESOURCES = [
   { id: "e_res1", title: "368E 엔진 서비스 매뉴얼", type: "PDF", fileId: "1Yo-MdOcFp9OP28zcaSkn8GoUgoYMezqY" }
 ];
 
+// ⭐ 선생님께서 주신 2개의 구글 독스 문서 다이렉트 연결
 const SCAN_ANALYSIS_RESOURCES = [
   { id: "sa_res1", title: "진단기 스캔 데이터 분석 방법", type: "PDF", fileId: "1QTzGcYFvrvz1gTqbygD8iqplrksTd909gmtzHfnp4Yk" }
 ];
@@ -46,7 +47,6 @@ const FAULT_CODE_RESOURCES = [
 
 /**
  * [추적 정비 진단 로직 데이터]
- * ⭐ 변경점: start 부분에 DTC 다이렉트 메뉴를 추가하고 dtc_list 연결
  */
 const DIAGNOSTIC_LOGIC = {
   start: {
@@ -171,7 +171,7 @@ const startSequenceData = {
   ]
 };
 
-// 통합 검색용 데이터 베이스
+// 통합 검색용 데이터 베이스 (복구됨)
 const SEARCH_DATABASE = [
   { id: "s1", title: "고장 추적 진단 (AI Logic) 시작", type: "DIAGNOSTIC", action: "diagnostic", tags: ["시동불량", "전원", "먹통", "스타터", "배터리", "시동꺼짐"] },
   { id: "s2", title: "시동 시퀀스 분석 12단계", type: "SEQUENCE", action: "sequence", tags: ["시동", "시퀀스", "PKE", "릴레이", "스마트키", "적색버튼", "12v"] },
@@ -180,7 +180,6 @@ const SEARCH_DATABASE = [
   { id: "s5", title: "고장코드(DTC) 목록", type: "CODE", action: "fault_code_library", tags: ["고장코드", "dtc", "에러", "경고등", "p0"] },
   { id: "s6", title: "프레임 매뉴얼 (차대, 조립, 토크)", type: "MANUAL", action: "frame_library", tags: ["프레임", "차대", "토크", "조립", "카울", "볼트", "메뉴얼"] },
   { id: "s7", title: "엔진 매뉴얼 (분해, 조립, 토크)", type: "MANUAL", action: "engine_library", tags: ["엔진", "분해", "토크", "조립", "메뉴얼", "타이밍"] },
-  // 고장코드 검색 데이터 추가
   { id: "p0107", title: "P0107 - 흡기 압력(MAP) 전압 낮음", type: "DTC", action: "diagnostic", tags: ["p0107", "map", "흡기", "전압"] },
   { id: "p0122", title: "P0122 - 스로틀 위치(TPS) 전압 낮음", type: "DTC", action: "diagnostic", tags: ["p0122", "tps", "스로틀", "전압"] },
   { id: "p0201", title: "P0201 - 연료 인젝터 피드백 없음", type: "DTC", action: "diagnostic", tags: ["p0201", "인젝터", "연료"] }
@@ -222,6 +221,7 @@ const styles = {
  * ==========================================
  */
 
+// 하단 검색 바 (복구됨)
 const BottomSearchBar = ({ onSearchResultClick }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -302,7 +302,6 @@ const BottomSearchBar = ({ onSearchResultClick }) => {
     </div>
   );
 };
-
 
 const SplashScreen = ({ setView, isAutoLogReady, lockApp }) => (
   <div style={styles.root} translate="no">
@@ -469,6 +468,7 @@ const MainScreen = ({ setView, lockApp }) => (
         <span style={{ color: "#93c5fd" }}>📂 정비 자료실 (Cloud)</span><span style={{ fontSize: "12px", color: "#3b82f6" }}>OPEN</span>
       </button>
     </div>
+    <p style={{ position: "absolute", bottom: "25px", color: "#555", fontSize: "11px", fontStyle: "italic", fontWeight: "900", letterSpacing: "6px", left: "50%", transform: "translateX(-50%)" }}>SINCE 1998</p>
   </div>
 );
 
@@ -522,7 +522,6 @@ const DiagnosticScreen = ({ setView, selectedModel }) => {
               
               <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "500px", overflowY: "auto", paddingRight: "5px" }}>
                 {node?.options?.map((opt, i) => {
-                  // 고장코드 다이렉트 버튼은 빨간색 테두리로 강조
                   const isDTCBtn = opt.text.includes("고장코드(DTC)");
                   return (
                     <button 
@@ -627,6 +626,7 @@ const CategoriesScreen = ({ setView, selectedModel, setSelectedCategory }) => (
   </div>
 );
 
+// --- 엔진 / 프레임 라이브러리 화면 (복구됨) ---
 const EngineLibraryScreen = ({ setView, selectedModel }) => {
   const [selectedFileId, setSelectedFileId] = useState(null);
   return (
@@ -701,6 +701,7 @@ const FrameLibraryScreen = ({ setView, selectedModel }) => {
   );
 };
 
+// --- 전장 서브 메뉴 및 스캔 메뉴 (복구됨) ---
 const ElectricalMenuScreen = ({ setView, selectedModel }) => {
   const subMenus = [
     { id: "smart", name: "스마트 (SMART SYSTEM)", isReady: true },
@@ -874,7 +875,7 @@ const WiringDiagramScreen = ({ setView, selectedModel }) => {
         <button onClick={resetZoom} style={{...controlBtnStyle, color: "#fff", borderColor: "#555"}}>↺ 원본</button>
         <button onClick={zoomIn} style={controlBtnStyle}>+ 확대</button>
       </div>
-      <div style={{ width: '100%', flex: 1, backgroundColor: '#050505', borderRadius: '20px', overflow: 'hidden', border: "2px solid #222", position: "relative", cursor: isDragging ? "grabbing" : "grab", touchAction: "none", marginBottom: "60px" }} onWheel={handleWheel} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleMouseUp}>
+      <div style={{ width: '100%', flex: 1, backgroundColor: '#050505', borderRadius: '20px', overflow: 'hidden', border: "2px solid #222", position: "relative", cursor: isDragging ? "grabbing" : "grab", touchAction: "none" }} onWheel={handleWheel} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleMouseUp}>
         <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`, transformOrigin: "center", transition: isDragging ? "none" : "transform 0.15s ease-out" }}>
           <img src="/368E 회로도.jpeg" alt="Full Wiring Diagram" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", pointerEvents: "none" }} onError={(e) => { e.target.style.display = 'none'; }} />
         </div>
@@ -936,7 +937,7 @@ const SequenceScreen = ({ setView, selectedModel }) => {
           <button key={s.id} onClick={() => setActiveStep(s.id)} style={{ padding: "10px 0", borderRadius: "8px", border: "1px solid #333", backgroundColor: activeStep === s.id ? "#f59e0b" : "#111", color: activeStep === s.id ? "#000" : "#fff", fontWeight: "900", fontSize: "13px" }}>{s.id}</button>
         ))}
       </div>
-      <div style={{ flex: 1, display: "flex", flexWrap: "wrap", gap: "15px", overflowY: "auto", paddingBottom: "80px" }}>
+      <div style={{ flex: 1, display: "flex", flexWrap: "wrap", gap: "15px", overflowY: "auto", paddingBottom: "20px" }}>
         <div style={{ flex: "1 1 500px", minHeight: "350px", backgroundColor: "#0a0a0a", borderRadius: "20px", border: "2px solid #222", display: "flex", flexDirection: "column", padding: "10px", gap: "15px" }}>
           {current?.images?.length > 0 ? current.images.map((imgName, idx) => (<img key={idx} src={`/${imgName}`} alt="" style={{ width: "100%", height: "auto", borderRadius: "10px" }} />)) : <div style={{ textAlign: "center", color: "#555" }}><p style={{ fontSize: "40px" }}>🏍️</p><p>회로도 없음</p></div>}
         </div>
@@ -965,7 +966,7 @@ const CloudViewScreen = ({ setView }) => (
         <button onClick={() => setView("main")} style={styles.backBtn}>← BACK</button>
         <span style={{ fontSize: '12px', color: '#FFFFFF', fontStyle: 'italic', fontWeight: "900" }}>MOTOSTAR CLOUD</span>
     </header>
-    <div style={{ width: "100%", flex: 1, backgroundColor: "#000", borderRadius: "25px", border: "1.5px solid #222", overflow: "hidden", display: "flex", marginTop: "20px", marginBottom: "80px" }}>
+    <div style={{ width: "100%", flex: 1, backgroundColor: "#000", borderRadius: "25px", border: "1.5px solid #222", overflow: "hidden", display: "flex", marginTop: "20px", marginBottom: "20px" }}>
       <iframe src={`https://drive.google.com/embeddedfolderview?id=${DEFAULT_CONFIG.FOLDER_ID}#grid`} style={{ width: "100%", height: "100%", border: "none" }} />
     </div>
   </div>
