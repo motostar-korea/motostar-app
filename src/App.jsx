@@ -8,7 +8,7 @@ import React, { useState, useEffect, useRef } from "react";
 const DEFAULT_CONFIG = {
   ADMIN_PASSCODE: "5282",
   USER_PASSCODE: "1234",
-  FOLDER_ID: "1nU2dtw62y7rruBVolcEj9tIscmDrB6-H",
+  FOLDER_ID: "1nU2dtw62y7rruBVolcEj9tIscmDrB6-H", // 1. 설정 부분 복구 (FOLDER_ID)
 };
 
 const SUPPORTED_MODELS = ["125M", "125D", "125E", "125C", "310M", "350D", "368E", "368G"];
@@ -36,8 +36,9 @@ const ENGINE_RESOURCES = [
   { id: "e_res1", title: "368E 엔진 서비스 매뉴얼", type: "PDF", fileId: "1Yo-MdOcFp9OP28zcaSkn8GoUgoYMezqY" }
 ];
 
-// ⭐ 선생님께서 주신 2개의 구글 독스 문서 다이렉트 연결
+// ⭐ 2. 스캐너 비법 문서를 자료실에 추가 (sa_res0)
 const SCAN_ANALYSIS_RESOURCES = [
+  { id: "sa_res0", title: "🚨 [필독] 스캐너 통신 연결 및 강제 진입 방법", type: "SHEET", fileId: "16pe4kyOkt3du0-Cy73wS97xz2zwOmWIQEMHSVRLFVCc" },
   { id: "sa_res1", title: "진단기 스캔 데이터 분석 방법", type: "PDF", fileId: "1QTzGcYFvrvz1gTqbygD8iqplrksTd909gmtzHfnp4Yk" }
 ];
 
@@ -171,7 +172,7 @@ const startSequenceData = {
   ]
 };
 
-// 통합 검색용 데이터 베이스 (복구됨)
+// 통합 검색용 데이터 베이스
 const SEARCH_DATABASE = [
   { id: "s1", title: "고장 추적 진단 (AI Logic) 시작", type: "DIAGNOSTIC", action: "diagnostic", tags: ["시동불량", "전원", "먹통", "스타터", "배터리", "시동꺼짐"] },
   { id: "s2", title: "시동 시퀀스 분석 12단계", type: "SEQUENCE", action: "sequence", tags: ["시동", "시퀀스", "PKE", "릴레이", "스마트키", "적색버튼", "12v"] },
@@ -180,6 +181,8 @@ const SEARCH_DATABASE = [
   { id: "s5", title: "고장코드(DTC) 목록", type: "CODE", action: "fault_code_library", tags: ["고장코드", "dtc", "에러", "경고등", "p0"] },
   { id: "s6", title: "프레임 매뉴얼 (차대, 조립, 토크)", type: "MANUAL", action: "frame_library", tags: ["프레임", "차대", "토크", "조립", "카울", "볼트", "메뉴얼"] },
   { id: "s7", title: "엔진 매뉴얼 (분해, 조립, 토크)", type: "MANUAL", action: "engine_library", tags: ["엔진", "분해", "토크", "조립", "메뉴얼", "타이밍"] },
+  // ⭐ 2. 스캐너 검색 데이터 추가
+  { id: "s8", title: "스캐너 통신 연결 및 강제 진입 방법", type: "SCAN", action: "scan_analysis_library", tags: ["스캐너", "진단기", "연결", "통신", "set", "mode", "진입"] },
   { id: "p0107", title: "P0107 - 흡기 압력(MAP) 전압 낮음", type: "DTC", action: "diagnostic", tags: ["p0107", "map", "흡기", "전압"] },
   { id: "p0122", title: "P0122 - 스로틀 위치(TPS) 전압 낮음", type: "DTC", action: "diagnostic", tags: ["p0122", "tps", "스로틀", "전압"] },
   { id: "p0201", title: "P0201 - 연료 인젝터 피드백 없음", type: "DTC", action: "diagnostic", tags: ["p0201", "인젝터", "연료"] }
@@ -221,7 +224,6 @@ const styles = {
  * ==========================================
  */
 
-// 하단 검색 바 (복구됨)
 const BottomSearchBar = ({ onSearchResultClick }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -464,6 +466,7 @@ const MainScreen = ({ setView, lockApp }) => (
         <span style={{color: "#FFF"}}>🛠️ 차종별 정비 지원</span><span style={{ fontSize: "12px", color: "#f59e0b" }}>VIEW</span>
       </button>
       
+      {/* ⭐ 3. 정비 자료실 (Cloud) 버튼 다시 복구 */}
       <button onClick={() => setView("cloudView")} style={{ ...styles.menuCard, borderLeft: "12px solid #3b82f6", backgroundColor: "#000810", border: "1.5px solid #001a33" }}>
         <span style={{ color: "#93c5fd" }}>📂 정비 자료실 (Cloud)</span><span style={{ fontSize: "12px", color: "#3b82f6" }}>OPEN</span>
       </button>
@@ -522,6 +525,7 @@ const DiagnosticScreen = ({ setView, selectedModel }) => {
               
               <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "500px", overflowY: "auto", paddingRight: "5px" }}>
                 {node?.options?.map((opt, i) => {
+                  // 고장코드 다이렉트 버튼은 빨간색 테두리로 강조
                   const isDTCBtn = opt.text.includes("고장코드(DTC)");
                   return (
                     <button 
@@ -626,7 +630,6 @@ const CategoriesScreen = ({ setView, selectedModel, setSelectedCategory }) => (
   </div>
 );
 
-// --- 엔진 / 프레임 라이브러리 화면 (복구됨) ---
 const EngineLibraryScreen = ({ setView, selectedModel }) => {
   const [selectedFileId, setSelectedFileId] = useState(null);
   return (
@@ -701,7 +704,6 @@ const FrameLibraryScreen = ({ setView, selectedModel }) => {
   );
 };
 
-// --- 전장 서브 메뉴 및 스캔 메뉴 (복구됨) ---
 const ElectricalMenuScreen = ({ setView, selectedModel }) => {
   const subMenus = [
     { id: "smart", name: "스마트 (SMART SYSTEM)", isReady: true },
@@ -875,7 +877,7 @@ const WiringDiagramScreen = ({ setView, selectedModel }) => {
         <button onClick={resetZoom} style={{...controlBtnStyle, color: "#fff", borderColor: "#555"}}>↺ 원본</button>
         <button onClick={zoomIn} style={controlBtnStyle}>+ 확대</button>
       </div>
-      <div style={{ width: '100%', flex: 1, backgroundColor: '#050505', borderRadius: '20px', overflow: 'hidden', border: "2px solid #222", position: "relative", cursor: isDragging ? "grabbing" : "grab", touchAction: "none" }} onWheel={handleWheel} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleMouseUp}>
+      <div style={{ width: '100%', flex: 1, backgroundColor: '#050505', borderRadius: '20px', overflow: 'hidden', border: "2px solid #222", position: "relative", cursor: isDragging ? "grabbing" : "grab", touchAction: "none", marginBottom: "60px" }} onWheel={handleWheel} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleMouseUp}>
         <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`, transformOrigin: "center", transition: isDragging ? "none" : "transform 0.15s ease-out" }}>
           <img src="/368E 회로도.jpeg" alt="Full Wiring Diagram" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", pointerEvents: "none" }} onError={(e) => { e.target.style.display = 'none'; }} />
         </div>
@@ -960,14 +962,15 @@ const SequenceScreen = ({ setView, selectedModel }) => {
   );
 };
 
+// ⭐ 4. 클라우드 화면 표시 코드 복구 및 연결
 const CloudViewScreen = ({ setView }) => (
   <div style={{ ...styles.root, justifyContent: "flex-start", padding: "10px" }} translate="no">
     <header style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 10px', marginTop: "35px" }}>
         <button onClick={() => setView("main")} style={styles.backBtn}>← BACK</button>
         <span style={{ fontSize: '12px', color: '#FFFFFF', fontStyle: 'italic', fontWeight: "900" }}>MOTOSTAR CLOUD</span>
     </header>
-    <div style={{ width: "100%", flex: 1, backgroundColor: "#000", borderRadius: "25px", border: "1.5px solid #222", overflow: "hidden", display: "flex", marginTop: "20px", marginBottom: "20px" }}>
-      <iframe src={`https://drive.google.com/embeddedfolderview?id=${DEFAULT_CONFIG.FOLDER_ID}#grid`} style={{ width: "100%", height: "100%", border: "none" }} />
+    <div style={{ width: "100%", flex: 1, backgroundColor: "#000", borderRadius: "25px", border: "1.5px solid #222", overflow: "hidden", display: "flex", marginTop: "20px", marginBottom: "80px" }}>
+      <iframe src={`https://drive.google.com/embeddedfolderview?id=${DEFAULT_CONFIG.FOLDER_ID}#grid`} style={{ width: "100%", height: "100%", border: "none" }} title="Cloud Folder" />
     </div>
   </div>
 );
@@ -1013,6 +1016,7 @@ export default function App() {
       case "fault_code_library": return <FaultCodeLibraryScreen setView={setView} selectedModel={selectedModel} />;
       case "wiring_diagram": return <WiringDiagramScreen setView={setView} selectedModel={selectedModel} />;
       case "sequence": return <SequenceScreen setView={setView} selectedModel={selectedModel} />;
+      // ⭐ 5. 렌더링 스위치 연결 (버튼을 눌렀을 때 클라우드 화면을 띄우는 이정표 역할)
       case "cloudView": return <CloudViewScreen setView={setView} />;
       default: return <div style={styles.root}>Initializing System...</div>;
     }
